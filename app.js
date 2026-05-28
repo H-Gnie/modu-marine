@@ -685,28 +685,32 @@ function sellStep5() {
   return `
     <div class="sell-card">
       <h2>사진 등록</h2>
-      <p class="sell-hint"><b>필수(*) 4장</b>을 포함해 5장 이상 등록을 권장합니다. 각 슬롯의 가이드를 참고해 주세요.</p>
+      <p class="sell-hint">각 박스를 <b>탭하면 사진을 선택</b>할 수 있습니다. 필수(*) 4장 이상 등록해 주세요.</p>
       <div class="photo-count-bar">
         <span class="photo-count-num">${uploaded}</span> / ${PHOTO_SLOTS.length}장 등록됨
       </div>
       <div class="photo-guide-grid">
         ${PHOTO_SLOTS.map(s => {
           const url = d.photos[s.key];
+          if (url) {
+            return `
+              <div class="pgslot filled">
+                <div class="pgslot-preview" style="background-image:url('${url}')">
+                  <button class="pgslot-remove" data-remove-photo="${s.key}" aria-label="삭제">×</button>
+                </div>
+                <div class="pgslot-filled-label">${s.label}${s.req ? '<em>*</em>' : ''}</div>
+              </div>`;
+          }
           return `
-            <div class="pgslot${s.req ? ' req' : ''}${url ? ' filled' : ''}" data-open-photo="${s.key}">
-              ${url
-                ? `<div class="pgslot-preview" style="background-image:url('${url}')">
-                    <button class="pgslot-remove" data-remove-photo="${s.key}" aria-label="삭제">×</button>
-                  </div>`
-                : `<div class="pgslot-empty">
-                    <span class="pgslot-plus">+</span>
-                    <span class="pgslot-label">${s.label}${s.req ? '<em>*</em>' : ''}</span>
-                    <span class="pgslot-hint">${s.hint}</span>
-                  </div>`
-              }
-              <input type="file" accept="image/*" class="photo-file-input" data-photo-key="${s.key}"
-                style="${url ? 'display:none' : 'position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;'}">
-            </div>`;
+            <label class="pgslot${s.req ? ' req' : ''}" for="photo-${s.key}">
+              <div class="pgslot-empty">
+                <span class="pgslot-plus">+</span>
+                <span class="pgslot-label">${s.label}${s.req ? '<em>*</em>' : ''}</span>
+                <span class="pgslot-tap">탭하여 추가</span>
+              </div>
+              <input type="file" id="photo-${s.key}" accept="image/*"
+                class="photo-file-input" data-photo-key="${s.key}" style="display:none">
+            </label>`;
         }).join('')}
       </div>
       <div class="field" style="margin-top:16px;">
@@ -1042,14 +1046,8 @@ document.addEventListener('click', e => {
     return render();
   }
 
-  // Photo slot open file dialog (desktop fallback — mobile uses transparent input overlay)
-  const photoSlot = e.target.closest('[data-open-photo]');
-  if (photoSlot && e.target.type !== 'file') {
-    const input = photoSlot.querySelector('input[type="file"]');
-    if (input && input.style.display !== 'none') input.click();
-    return;
-  }
-  if (e.target.type === 'file') return; // 인풋 직접 탭 — 브라우저가 처리
+  // 사진 슬롯은 <label for="..."> 방식으로 브라우저가 직접 처리 — JS 불필요
+  if (e.target.type === 'file') return;
 
   const d = e.target.closest('[data-detail]');
   if (d) return viewDetail(d.dataset.detail);
