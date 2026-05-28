@@ -1701,7 +1701,7 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   border: 1px solid var(--line);
   border-radius: var(--r-md);
-  overflow: hidden;
+  /* overflow: hidden 제거 — 모바일에서 자식 overflow-x:auto 스크롤 차단 방지 */
 }
 .cmp-label-col {
   flex: 0 0 68px;
@@ -1713,11 +1713,14 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   overflow-x: auto;
   flex: 1;
+  min-width: 0;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 .cmp-scroll::-webkit-scrollbar { display: none; }
 .cmp-col {
-  flex: 0 0 150px;
+  /* 126px → 2열이 252px, 3열이 42px 노출돼 스크롤 힌트 역할 */
+  flex: 0 0 126px;
   border-right: 1px solid var(--line);
 }
 .cmp-col:last-child { border-right: none; }
@@ -1849,7 +1852,7 @@ a { color: inherit; text-decoration: none; }
   .sticky-btn { font-size: 12px; }
   /* 비교함 레이블 열 너비 축소 */
   .cmp-label-col { flex: 0 0 56px; font-size: 10px; }
-  .cmp-col { flex: 0 0 136px; }
+  .cmp-col { flex: 0 0 110px; }
   /* 사진 슬롯 힌트 텍스트 */
   .pgslot-hint { font-size: 9px; }
 }
