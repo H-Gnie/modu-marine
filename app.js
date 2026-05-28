@@ -704,7 +704,8 @@ function sellStep5() {
                     <span class="pgslot-hint">${s.hint}</span>
                   </div>`
               }
-              <input type="file" accept="image/*" class="photo-file-input" data-photo-key="${s.key}" style="display:none">
+              <input type="file" accept="image/*" class="photo-file-input" data-photo-key="${s.key}"
+                style="${url ? 'display:none' : 'position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;'}">
             </div>`;
         }).join('')}
       </div>
@@ -1041,14 +1042,14 @@ document.addEventListener('click', e => {
     return render();
   }
 
-  // Photo slot open file dialog
+  // Photo slot open file dialog (desktop fallback — mobile uses transparent input overlay)
   const photoSlot = e.target.closest('[data-open-photo]');
-  if (photoSlot) {
-    const key = photoSlot.dataset.openPhoto;
+  if (photoSlot && e.target.type !== 'file') {
     const input = photoSlot.querySelector('input[type="file"]');
-    if (input) { e.preventDefault(); input.click(); }
+    if (input && input.style.display !== 'none') input.click();
     return;
   }
+  if (e.target.type === 'file') return; // 인풋 직접 탭 — 브라우저가 처리
 
   const d = e.target.closest('[data-detail]');
   if (d) return viewDetail(d.dataset.detail);
