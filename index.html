@@ -17,8 +17,9 @@
           <span>모두의 마린</span>
         </button>
         <div class="top-actions">
-          <button class="icon-btn" id="compareBtn" title="비교함" aria-label="비교함">
+          <button class="icon-btn" id="compareBtn" title="비교함" aria-label="비교함" style="position:relative;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l-4-6 4-6"/><path d="M15 6l4 6-4 6"/></svg>
+            <span class="cmp-topbadge" id="cmpTopBadge" aria-label="비교함 대수"></span>
           </button>
           <button class="icon-btn" id="wishBtn" title="찜" aria-label="찜">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
@@ -50,6 +51,13 @@
       </nav>
     </div>
     <div id="toast" class="toast" role="status"></div>
+    <div id="cmpBar" class="cmp-bar hidden" role="status" aria-live="polite">
+      <span class="cmp-bar-left">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l-4-6 4-6"/><path d="M15 6l4 6-4 6"/></svg>
+        <span id="cmpBarLabel">비교함 0대</span>
+      </span>
+      <button id="cmpBarBtn" class="cmp-bar-btn">비교하기 →</button>
+    </div>
     <script src="./app.js"></script>
   </body>
 </html>

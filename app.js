@@ -481,7 +481,7 @@ function compare() {
           <div class="cmp-head-cell"></div>
           <div class="cmp-img-head"></div>
           ${rows.map(r => `<div class="cmp-label-cell">${r.label}</div>`).join('')}
-          <div class="cmp-label-cell">배지</div>
+          <div class="cmp-label-cell badge-row">배지</div>
           <div class="cmp-action-head"></div>
         </div>
         <div class="cmp-scroll">
@@ -972,6 +972,22 @@ function render() {
   else if (state.tab === 'garage') app.innerHTML = garage();
   else if (state.tab === 'dealer') app.innerHTML = dealer();
   else app.innerHTML = more();
+
+  // 상단 비교 뱃지
+  const badge = document.getElementById('cmpTopBadge');
+  if (badge) {
+    const n = state.compared.size;
+    badge.textContent = n || '';
+    badge.classList.toggle('visible', n > 0);
+  }
+  // 플로팅 비교 바 — 비교함·상세에서는 숨김
+  const cmpBar = document.getElementById('cmpBar');
+  const label = document.getElementById('cmpBarLabel');
+  if (cmpBar && label) {
+    const showBar = state.compared.size > 0 && !['compare', 'detail'].includes(state.tab);
+    cmpBar.classList.toggle('hidden', !showBar);
+    label.textContent = `비교함 ${state.compared.size}대`;
+  }
 }
 
 document.addEventListener('click', e => {
@@ -1097,6 +1113,7 @@ document.addEventListener('click', e => {
     return setTab('search');
   }
 
+  if (e.target.closest('#cmpBarBtn')) return setTab('compare');
   if (e.target.closest('#homeBtn')) return setTab('home');
   if (e.target.closest('#backBtn')) {
     if (state.tab === 'detail') return setTab('search');

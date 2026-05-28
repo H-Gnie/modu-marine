@@ -1407,7 +1407,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ── Detail Pad ──────────────────────────────── */
-.screen.detail-pad { padding-bottom: 155px; }
+.screen.detail-pad { padding-bottom: 185px; }
 
 /* ── Detail Gallery ──────────────────────────── */
 .detail-gallery { position: relative; }
@@ -1587,6 +1587,12 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: space-between;
   gap: 4px;
+  min-width: 0;
+}
+.card-bottom-row .one-line {
+  flex: 1;
+  min-width: 0;
+  margin-top: 0;
 }
 .card-cmp-btn {
   flex: 0 0 auto;
@@ -1604,6 +1610,70 @@ a { color: inherit; text-decoration: none; }
   color: var(--blue);
   border-color: #b8d0ff;
   background: #EEF4FF;
+}
+
+/* ── Compare Topbar Badge ────────────────────── */
+.cmp-topbadge {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+}
+.cmp-topbadge.visible { display: flex; }
+
+/* ── Floating Compare Bar ────────────────────── */
+.cmp-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 62px;
+  transform: translateX(-50%) translateY(0);
+  width: min(430px, 100vw);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--navy);
+  color: #fff;
+  z-index: 24;
+  gap: 12px;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), opacity .25s;
+  opacity: 1;
+  box-shadow: 0 -4px 20px rgba(11,29,46,.22);
+}
+.cmp-bar.hidden {
+  transform: translateX(-50%) translateY(calc(100% + 4px));
+  opacity: 0;
+  pointer-events: none;
+}
+.cmp-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.cmp-bar-btn {
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ── Compare View ────────────────────────────── */
@@ -1716,7 +1786,7 @@ a { color: inherit; text-decoration: none; }
   -webkit-box-orient: vertical;
 }
 .cmp-label-cell {
-  min-height: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   padding: 0 8px;
@@ -1724,25 +1794,35 @@ a { color: inherit; text-decoration: none; }
   font-size: 11px;
   font-weight: 700;
   color: var(--muted);
+  overflow: hidden;
 }
+.cmp-label-cell.badge-row { height: 48px; }
 .cmp-cell {
-  min-height: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 3px;
-  padding: 6px 8px;
+  padding: 0 8px;
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--ink);
+  overflow: hidden;
+  white-space: nowrap;
 }
 .cmp-cell.best {
   color: #1B7C37;
   font-weight: 800;
   background: #F0FBF4;
 }
-.cmp-badge-cell { gap: 3px; min-height: 44px; }
+.cmp-badge-cell {
+  height: 48px;
+  white-space: normal;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 6px 8px;
+  gap: 3px;
+}
 .cmp-action-head {
   height: 52px;
   border-bottom: 1px solid var(--line);
@@ -1763,4 +1843,13 @@ a { color: inherit; text-decoration: none; }
   .star-grid, .theme-grid, .sell-guide, .mode-grid { grid-template-columns: 1fr; }
   .hero-search h1 { font-size: 20px; }
   .detail-title { font-size: 19px; }
+  /* 홈 아이콘 텍스트 — 좁은 화면에서 clipping 방지 */
+  .home-icons button span { font-size: 10px; }
+  /* sticky CTA 텍스트 크기 축소 */
+  .sticky-btn { font-size: 12px; }
+  /* 비교함 레이블 열 너비 축소 */
+  .cmp-label-col { flex: 0 0 56px; font-size: 10px; }
+  .cmp-col { flex: 0 0 136px; }
+  /* 사진 슬롯 힌트 텍스트 */
+  .pgslot-hint { font-size: 9px; }
 }

@@ -100,7 +100,7 @@ Files likely to change:
 
 Requirements:
 
-- 이미지 갤러리 mock
+- 이미지 갤러리 (다중 이미지 지원, 썸네일 클릭으로 메인 전환)
 - 가격/AI시세 비교
 - 기본 제원
 - 판매자 정보
@@ -109,7 +109,7 @@ Requirements:
 - 사고/침수/좌초 이력
 - 포함 품목
 - 예상 추가 비용: 운송비, 계류비, 보험료 mock
-- 하단 sticky CTA: 문의, 방문예약, 홈배송상담
+- 하단 sticky CTA: 문의하기(2칸) / ⇄ 비교담기 / 방문예약 (2열 그리드)
 
 Acceptance criteria:
 
@@ -143,7 +143,7 @@ Acceptance criteria:
 
 ## TICKET-MM-006: File Structure Cleanup
 
-Status: Ready after UI polish.
+Status: Deferred. 단일 파일 유지 결정.
 
 Goal: 단일 `app.js`가 너무 커지는 문제를 완화한다.
 
@@ -195,6 +195,34 @@ Acceptance criteria:
 
 - `npm run dev`로 실행 가능
 - 기존 화면과 기능이 유지 또는 개선됨
+
+## 티켓 외 추가 구현 (Done)
+
+### 사진 가이드 슬롯 (sellStep5 → Step 6)
+- 판매 등록 Step 6에 `PHOTO_SLOTS` 10개 슬롯: 정면\*/우측면\*/좌측면\*/후면\*/갑판/조종석/계기판/엔진룸/기타1·2
+- 슬롯 탭 → 파일 탐색기 → `URL.createObjectURL()` 미리보기
+- 사진 blob URL은 새로고침 시 소실 (알려진 한계, IndexedDB 저장은 미구현)
+
+### 다중 이미지 갤러리 (detail)
+- `getPhotos(item)` 헬퍼: photos 객체 있으면 URL 배열, 없으면 단일 image
+- 2장 이상일 때만 썸네일 스트립 표시
+- 썸네일 클릭 → 메인 이미지 전환 (재렌더 없이 DOM 직접 업데이트)
+
+### 비교함 상세 뷰 (compare)
+- `state.tab === 'compare'` 신규 화면
+- 상단바 ⇄ 버튼 → `setTab('compare')`
+- 좌측 고정 레이블 + 우측 가로 스크롤 (최대 4대)
+- 가격/등급/연식/운항시간 유리한 값 녹색 ✓ 표시
+- 개별 제거, 전체 초기화, 빈 상태 안내, 매물 추가 슬롯
+- 최대 4대 초과 시 토스트 안내
+
+### 이미지 카테고리 매칭
+- 30개 매물 image 필드를 선종별 Unsplash 사진으로 교체
+
+### 배포
+- GitHub Pages: `https://h-gnie.github.io/modu-marine/`
+- 저장소: `https://github.com/H-Gnie/modu-marine`
+- push 후 1~2분 자동 반영
 
 ## Design Reference Notes
 
