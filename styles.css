@@ -1628,6 +1628,92 @@ a { color: inherit; text-decoration: none; }
   background: #EEF4FF;
 }
 
+/* ── MM-008 인증/진단 고지 ──────────────────── */
+.badge-info-btn {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  background: #EEF4FF;
+  border: 1px solid #b8d0ff;
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.diagnosis-notice {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  background: var(--soft);
+  border-left: 3px solid var(--line);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: 11.5px;
+  color: var(--sub);
+  line-height: 1.6;
+}
+.notice-accordion { display: grid; gap: 6px; }
+.notice-details {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--white);
+  overflow: hidden;
+}
+.notice-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+  gap: 8px;
+}
+.notice-summary::-webkit-details-marker { display: none; }
+.notice-summary::after {
+  content: '﹀';
+  font-size: 13px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+details[open] .notice-summary::after { content: '︿'; }
+.notice-body {
+  padding: 0 14px 14px;
+  font-size: 13px;
+  color: var(--sub);
+  line-height: 1.65;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: #F0F5FF;
+  border: 1px solid #b8d0ff;
+  border-radius: var(--r-sm);
+  margin-top: 14px;
+  cursor: pointer;
+}
+.consent-row input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+.consent-row span {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+#submitSell:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
 /* ── Compare Topbar Badge ────────────────────── */
 .cmp-topbadge {
   position: absolute;
