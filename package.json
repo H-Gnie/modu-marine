@@ -1,0 +1,35 @@
+{
+  "name": "modu-marine",
+  "version": "1.0.0",
+  "description": "중고 보트, 제트스키, 요트, 낚시보트 등 수상레저 탈것 거래 앱 MVP입니다. KB차차차의 정보 구조를 참고하되 브랜드/문구/화면을 복제하지 않고, 수상레저 도메인에 맞게 재구성했습니다.",
+  "main": "app.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/H-Gnie/modu-marine.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/H-Gnie/modu-marine/issues"
+  },
+  "homepage": "https://github.com/H-Gnie/modu-marine#readme",
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.14"
+  }
+}

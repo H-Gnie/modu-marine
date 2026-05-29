@@ -1,0 +1,213 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import { listings, PHOTO_SLOTS } from './data.js'
+import { freshSellData } from './state.js'
+import { byId, won, gradeOf, getPhotos } from './utils.js'
+
+import TopBar from './components/TopBar.jsx'
+import BottomNav from './components/BottomNav.jsx'
+import CompareBar from './components/CompareBar.jsx'
+import Toast from './components/Toast.jsx'
+import Home from './views/Home.jsx'
+import Search from './views/Search.jsx'
+import Detail from './views/Detail.jsx'
+import Compare from './views/Compare.jsx'
+import Sell from './views/Sell.jsx'
+import Garage from './views/Garage.jsx'
+import More from './views/More.jsx'
+import Dealer from './views/Dealer.jsx'
+
+// localStorage helpers
+function loadArr(key) {
+  try {
+    const v = localStorage.getItem(key)
+    if (!v) return []
+    const p = JSON.parse(v)
+    return Array.isArray(p) ? p : []
+  } catch { return [] }
+}
+function loadSet(key) {
+  return new Set(loadArr(key).map(Number).filter(Number.isFinite))
+}
+
+export default function App() {
+  const [tab, setTabState] = useState('home')
+  const [listing, setListing] = useState(null)
+  const [filters, setFilters] = useState({
+    category: '전체', maxPrice: '', region: '전체',
+    certified: false, delivery: false, sort: '추천순',
+    q: '', service: '전체매물'
+  })
+  const [wished, setWished] = useState(() => loadSet('modu_wished'))
+  const [compared, setCompared] = useState(() => loadSet('modu_compared'))
+  const [recent, setRecent] = useState(() => loadArr('modu_recent').map(Number).filter(Number.isFinite).slice(0, 8))
+  const [sellStep, setSellStep] = useState(0)
+  const [sellMode, setSellMode] = useState('self')
+  const [sellData, setSellData] = useState(freshSellData)
+  const [sellRequests, setSellRequests] = useState(() => {
+    try {
+      const v = localStorage.getItem('modu_sellRequests')
+      if (!v) return []
+      const p = JSON.parse(v)
+      return Array.isArray(p) ? p.filter(x => x && typeof x === 'object') : []
+    } catch { return [] }
+  })
+  const [toast, setToast] = useState({ msg: '', visible: false })
+
+  // persist
+  useEffect(() => {
+    try {
+      localStorage.setItem('modu_wished', JSON.stringify([...wished]))
+      localStorage.setItem('modu_compared', JSON.stringify([...compared]))
+      localStorage.setItem('modu_recent', JSON.stringify(recent))
+      localStorage.setItem('modu_sellRequests', JSON.stringify(sellRequests))
+    } catch {}
+  }, [wished, compared, recent, sellRequests])
+
+  const showToast = useCallback((msg) => {
+    setToast({ msg, visible: true })
+    setTimeout(() => setToast(t => ({ ...t, visible: false })), 1600)
+  }, [])
+
+  const setTab = useCallback((t) => {
+    setTabState(t)
+    setListing(null)
+    window.scrollTo(0, 0)
+  }, [])
+
+  const viewDetail = useCallback((id) => {
+    const item = byId(id)
+    setListing(item)
+    setTabState('detail')
+    setRecent(prev => [Number(id), ...prev.filter(x => x !== Number(id))].slice(0, 8))
+    window.scrollTo(0, 0)
+  }, [])
+
+  const toggleWish = useCallback((id) => {
+    const numId = Number(id)
+    setWished(prev => {
+      const next = new Set(prev)
+      if (next.has(numId)) {
+        next.delete(numId)
+        showToast('찜을 해제했습니다')
+      } else {
+        next.add(numId)
+        showToast('찜했습니다')
+      }
+      return next
+    })
+  }, [showToast])
+
+  const toggleCompare = useCallback((id) => {
+    const numId = Number(id)
+    setCompared(prev => {
+      const next = new Set(prev)
+      if (next.has(numId)) {
+        next.delete(numId)
+        showToast('비교함에서 제거됐습니다')
+      } else {
+        if (next.size >= 4) { showToast('비교함은 최대 4대까지 가능합니다'); return prev }
+        next.add(numId)
+        showToast(`비교함에 추가됐습니다 (${next.size}대)`)
+      }
+      return next
+    })
+  }, [showToast])
+
+  const clearCompare = useCallback(() => {
+    setCompared(new Set())
+  }, [])
+
+  const updateFilters = useCallback((updates) => {
+    setFilters(prev => ({ ...prev, ...updates }))
+  }, [])
+
+  const goServiceSearch = useCallback((service) => {
+    setFilters(prev => ({ ...prev, service, q: '' }))
+    setTabState('search')
+    setListing(null)
+    window.scrollTo(0, 0)
+  }, [])
+
+  const goBudget = useCallback((maxPrice) => {
+    setFilters(prev => ({ ...prev, maxPrice, category: '전체' }))
+    setTabState('search')
+    setListing(null)
+    window.scrollTo(0, 0)
+  }, [])
+
+  const goTheme = useCallback((category) => {
+    setFilters(prev => ({ ...prev, category }))
+    setTabState('search')
+    setListing(null)
+    window.scrollTo(0, 0)
+  }, [])
+
+  const submitSell = useCallback((finalData) => {
+    const photoUrls = PHOTO_SLOTS.map(s => finalData.photos[s.key]).filter(Boolean)
+    setSellRequests(prev => [{
+      mode: sellMode === 'pro' ? '내마린팔기 Pro' : '내마린팔기 Self',
+      status: '접수 완료',
+      type: finalData.type, brand: finalData.brand, model: finalData.model,
+      year: finalData.year, price: finalData.price, region: finalData.region,
+      created: new Date().toLocaleDateString('ko-KR'),
+      image: photoUrls[0] || '',
+      photos: { ...finalData.photos },
+      diagnosisNoticeVersion: '1.0',
+      diagnosisNoticeAcceptedAt: new Date().toISOString(),
+      consentAcceptedAt: new Date().toISOString(),
+    }, ...prev])
+    setSellStep(0)
+    setSellData(freshSellData())
+    showToast('내마린팔기 접수 완료')
+    setTab('garage')
+  }, [sellMode, showToast, setTab])
+
+  const handleBack = useCallback(() => {
+    if (tab === 'detail') { setTabState('search'); window.scrollTo(0, 0) }
+    else if (tab === 'dealer') { setTabState('more'); window.scrollTo(0, 0) }
+    else { setTabState('home'); window.scrollTo(0, 0) }
+  }, [tab])
+
+  const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare'].includes(tab)
+  const isDetail = tab === 'detail'
+  const screenClass = 'screen' + (isPadded ? ' padded' : '') + (isDetail ? ' detail-pad' : '')
+
+  const sharedProps = {
+    tab, listing, filters, wished, compared, recent,
+    sellStep, sellMode, sellData, sellRequests,
+    setTab, viewDetail, toggleWish, toggleCompare, clearCompare,
+    updateFilters, goServiceSearch, goBudget, goTheme,
+    setSellStep, setSellMode, setSellData, submitSell,
+    showToast,
+  }
+
+  return (
+    <div className="app-shell">
+      <TopBar
+        tab={tab}
+        compared={compared}
+        onBack={handleBack}
+        onHome={() => setTab('home')}
+        onCompare={() => setTab('compare')}
+        onWish={() => setTab('garage')}
+      />
+      <main id="app" className={screenClass}>
+        {tab === 'home'    && <Home    {...sharedProps} />}
+        {tab === 'search'  && <Search  {...sharedProps} />}
+        {tab === 'detail'  && <Detail  {...sharedProps} />}
+        {tab === 'compare' && <Compare {...sharedProps} />}
+        {tab === 'sell'    && <Sell    {...sharedProps} />}
+        {tab === 'garage'  && <Garage  {...sharedProps} />}
+        {tab === 'dealer'  && <Dealer  {...sharedProps} />}
+        {tab === 'more'    && <More    {...sharedProps} />}
+      </main>
+      <BottomNav tab={tab} setTab={setTab} />
+      <CompareBar
+        compared={compared}
+        tab={tab}
+        onGo={() => setTab('compare')}
+      />
+      <Toast msg={toast.msg} visible={toast.visible} />
+    </div>
+  )
+}

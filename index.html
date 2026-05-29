@@ -4,60 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>모두의 마린</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <button class="icon-btn" id="backBtn" title="뒤로가기" aria-label="뒤로가기">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button class="brand" id="homeBtn" aria-label="홈으로">
-          <span class="brand-mark">M</span>
-          <span>모두의 마린</span>
-        </button>
-        <div class="top-actions">
-          <button class="icon-btn" id="compareBtn" title="비교함" aria-label="비교함" style="position:relative;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l-4-6 4-6"/><path d="M15 6l4 6-4 6"/></svg>
-            <span class="cmp-topbadge" id="cmpTopBadge" aria-label="비교함 대수"></span>
-          </button>
-          <button class="icon-btn" id="wishBtn" title="찜" aria-label="찜">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-          </button>
-        </div>
-      </header>
-      <main id="app" class="screen"></main>
-      <nav class="bottom-nav" aria-label="주요 메뉴">
-        <button data-tab="home" class="active">
-          <svg viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V10.5z"/><path d="M9 21V13h6v8"/></svg>
-          <span>홈</span>
-        </button>
-        <button data-tab="search">
-          <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>
-          <span>검색</span>
-        </button>
-        <button data-tab="sell">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-          <span>팔기</span>
-        </button>
-        <button data-tab="garage">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.5"/><path d="M5 21v-1a7 7 0 0114 0v1"/><path d="M8 21h8"/></svg>
-          <span>마이마린</span>
-        </button>
-        <button data-tab="more">
-          <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-          <span>더보기</span>
-        </button>
-      </nav>
-    </div>
-    <div id="toast" class="toast" role="status"></div>
-    <div id="cmpBar" class="cmp-bar hidden" role="status" aria-live="polite">
-      <span class="cmp-bar-left">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l-4-6 4-6"/><path d="M15 6l4 6-4 6"/></svg>
-        <span id="cmpBarLabel">비교함 0대</span>
-      </span>
-      <button id="cmpBarBtn" class="cmp-bar-btn">비교하기 →</button>
-    </div>
-    <script type="module" src="./app.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
