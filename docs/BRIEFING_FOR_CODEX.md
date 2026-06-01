@@ -111,7 +111,9 @@ git push         # → Vercel 자동 배포
 #### AI 챗봇
 - **`api/chat.js`**: Vercel 서버리스 함수, Anthropic Claude Haiku 호출
 - **`src/components/ChatBot.jsx`**: 슬라이드업 채팅 UI
-- 접속 1.5초 후 자동 슬라이드업 (PC/모바일 공통, 무조건)
+- 접속 1.5초 후 자동 슬라이드업 (사용자가 닫으면 같은 세션에서는 재오픈 안 함)
+- 초기 추천 질문 버튼 4개 제공
+- 200자 초과 입력/API 설정 오류/사용량 제한에 대한 사용자 안내
 - 챗봇 응답 → 검색 탭에 해당 매물 자동 필터링
 - **환경변수**: `ANTHROPIC_API_KEY` (Vercel 대시보드에 등록됨)
 

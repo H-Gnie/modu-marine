@@ -19,6 +19,9 @@ import Garage from './views/Garage.jsx'
 import More from './views/More.jsx'
 import Dealer from './views/Dealer.jsx'
 
+const CHAT_AUTO_DISMISSED_KEY = 'chat_auto_dismissed'
+const CHAT_FAB_HIDDEN_KEY = 'chat_fab_hidden'
+
 // localStorage helpers
 function loadArr(key) {
   try {
@@ -58,29 +61,36 @@ export default function App() {
   const [toast, setToast] = useState({ msg: '', visible: false })
   const [chatOpen, setChatOpen] = useState(false)
   const [fabVisible, setFabVisible] = useState(
-    () => localStorage.getItem('chat_fab_hidden') !== '1'
+    () => localStorage.getItem(CHAT_FAB_HIDDEN_KEY) !== '1'
   )
 
-  // 접속 시 1.5초 후 무조건 자동 슬라이드업 (PC/모바일 공통)
+  // 접속 시 한 번만 자동 슬라이드업. 사용자가 닫으면 같은 세션에서는 다시 열지 않는다.
   useEffect(() => {
+    if (!fabVisible || sessionStorage.getItem(CHAT_AUTO_DISMISSED_KEY) === '1') return
     const t = setTimeout(() => setChatOpen(true), 1500)
     return () => clearTimeout(t)
-  }, [])
+  }, [fabVisible])
 
   const closeChat = useCallback(() => {
+    sessionStorage.setItem(CHAT_AUTO_DISMISSED_KEY, '1')
+    sessionStorage.setItem('chat_dismissed', '1')
     setChatOpen(false)
   }, [])
 
   const dismissFab = useCallback(() => {
+    sessionStorage.setItem(CHAT_AUTO_DISMISSED_KEY, '1')
+    sessionStorage.setItem('chat_dismissed', '1')
     setChatOpen(false)
     setFabVisible(false)
-    localStorage.setItem('chat_fab_hidden', '1')
+    localStorage.setItem(CHAT_FAB_HIDDEN_KEY, '1')
   }, [])
 
   const restoreFab = useCallback(() => {
     setFabVisible(true)
-    localStorage.removeItem('chat_fab_hidden')
+    localStorage.removeItem(CHAT_FAB_HIDDEN_KEY)
+    sessionStorage.removeItem(CHAT_AUTO_DISMISSED_KEY)
     sessionStorage.removeItem('chat_dismissed')
+    setChatOpen(true)
   }, [])
 
   const handleChatSelect = useCallback((ids) => {
@@ -236,7 +246,13 @@ export default function App() {
     <div className="chat-fab">
       <button
         className={`chat-fab-btn${!sessionStorage.getItem('chat_dismissed') ? ' pulse' : ''}`}
-        onClick={() => setChatOpen(v => !v)}
+        onClick={() => {
+          if (chatOpen) closeChat()
+          else {
+            sessionStorage.setItem('chat_dismissed', '1')
+            setChatOpen(true)
+          }
+        }}
         aria-label="AI 매물 추천 챗봇"
       >
         {chatOpen

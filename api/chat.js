@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const MAX_MESSAGE_LENGTH = 200;
 
 const SYSTEM_PROMPT = `당신은 '모두의 마린' 수상레저 중고 거래 앱의 매물 추천 전문가입니다.
 사용자가 원하는 보트, 제트스키, 요트, 낚시보트, RIB 등을 찾을 수 있도록 친절하게 도와주세요.
@@ -29,32 +29,52 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { message, listings } = req.body;
-  if (!message) return res.status(400).json({ error: 'message required' });
+  const { message, listings } = req.body || {};
+  const cleanMessage = typeof message === 'string' ? message.trim() : '';
+  if (!cleanMessage) return res.status(400).json({ message: '질문을 입력해 주세요.', listingIds: [] });
+  if (cleanMessage.length > MAX_MESSAGE_LENGTH) {
+    return res.status(400).json({ message: `질문은 ${MAX_MESSAGE_LENGTH}자 이내로 입력해 주세요.`, listingIds: [] });
+  }
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return res.status(503).json({ message: 'AI 추천 설정을 준비 중입니다. 검색 필터를 먼저 이용해 주세요.', listingIds: [] });
+  }
 
-  const listingSummary = (listings || []).map(l =>
-    `ID:${l.id} [${l.category}] ${l.title} / ${l.price}만원 / ${l.location} / ${l.hours}h / 배지:${l.badges.join(',')}`
-  ).join('\n');
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+  const listingSummary = (Array.isArray(listings) ? listings : []).slice(0, 50).map(l => {
+    const badges = Array.isArray(l.badges) ? l.badges.join(',') : '';
+    return `ID:${l.id} [${l.category}] ${l.title} / ${l.price}만원 / ${l.location} / ${l.hours}h / 배지:${badges}`;
+  }).join('\n');
 
   try {
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 512,
       system: SYSTEM_PROMPT + '\n\n현재 매물 목록:\n' + listingSummary,
-      messages: [{ role: 'user', content: message }],
+      messages: [{ role: 'user', content: cleanMessage }],
     });
 
     const text = response.content[0].text.trim();
 
     try {
       const parsed = JSON.parse(text);
-      return res.status(200).json(parsed);
+      const ids = Array.isArray(parsed.listingIds)
+        ? parsed.listingIds.map(Number).filter(Number.isFinite).slice(0, 12)
+        : [];
+      return res.status(200).json({ message: parsed.message || '조건에 맞는 매물을 찾아봤습니다.', listingIds: ids });
     } catch {
       // JSON 파싱 실패 시 텍스트만 반환
       return res.status(200).json({ message: text, listingIds: [] });
     }
   } catch (err) {
     console.error('Anthropic error:', err);
-    return res.status(500).json({ message: '일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.', listingIds: [] });
+    const status = err.status || err.statusCode || 500;
+    if (status === 401) {
+      return res.status(503).json({ message: 'AI 추천 설정을 확인하는 중입니다. 잠시 후 다시 이용해 주세요.', listingIds: [] });
+    }
+    if (status === 402 || status === 429) {
+      return res.status(503).json({ message: 'AI 추천 사용량이 잠시 제한되었습니다. 검색 필터를 먼저 이용해 주세요.', listingIds: [] });
+    }
+    return res.status(500).json({ message: 'AI 추천 연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.', listingIds: [] });
   }
 }
