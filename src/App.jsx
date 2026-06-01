@@ -54,18 +54,33 @@ export default function App() {
   })
   const [toast, setToast] = useState({ msg: '', visible: false })
   const [chatOpen, setChatOpen] = useState(false)
+  const [fabVisible, setFabVisible] = useState(
+    () => localStorage.getItem('chat_fab_hidden') !== '1'
+  )
 
   // 첫 방문 시 1.5초 후 자동 슬라이드업 (세션당 1회)
   useEffect(() => {
-    if (!sessionStorage.getItem('chat_dismissed')) {
+    if (!sessionStorage.getItem('chat_dismissed') && fabVisible) {
       const t = setTimeout(() => setChatOpen(true), 1500)
       return () => clearTimeout(t)
     }
-  }, [])
+  }, [fabVisible])
 
   const closeChat = useCallback(() => {
     setChatOpen(false)
     sessionStorage.setItem('chat_dismissed', '1')
+  }, [])
+
+  const dismissFab = useCallback(() => {
+    setChatOpen(false)
+    setFabVisible(false)
+    localStorage.setItem('chat_fab_hidden', '1')
+  }, [])
+
+  const restoreFab = useCallback(() => {
+    setFabVisible(true)
+    localStorage.removeItem('chat_fab_hidden')
+    sessionStorage.removeItem('chat_dismissed')
   }, [])
 
   const handleChatSelect = useCallback((ids) => {
@@ -222,7 +237,7 @@ export default function App() {
         {tab === 'sell'    && <Sell    {...sharedProps} />}
         {tab === 'garage'  && <Garage  {...sharedProps} />}
         {tab === 'dealer'  && <Dealer  {...sharedProps} />}
-        {tab === 'more'    && <More    {...sharedProps} />}
+        {tab === 'more'    && <More    {...sharedProps} onRestoreChat={restoreFab} fabVisible={fabVisible} />}
       </main>
       <BottomNav tab={tab} setTab={setTab} />
       <CompareBar
@@ -236,6 +251,23 @@ export default function App() {
         onClose={closeChat}
         onSelectListings={handleChatSelect}
       />
+      {fabVisible && (
+        <div className="chat-fab">
+          <button
+            className={`chat-fab-btn${!sessionStorage.getItem('chat_dismissed') ? ' pulse' : ''}`}
+            onClick={() => setChatOpen(v => !v)}
+            aria-label="AI 매물 추천 챗봇"
+          >
+            {chatOpen
+              ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            }
+          </button>
+          {!chatOpen && (
+            <button className="chat-fab-dismiss" onClick={dismissFab} aria-label="챗봇 숨기기">✕</button>
+          )}
+        </div>
+      )}
     </div>
   )
 }

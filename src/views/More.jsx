@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function More({ setTab, goServiceSearch, showToast }) {
+export default function More({ setTab, goServiceSearch, showToast, onRestoreChat, fabVisible }) {
   return (
     <>
       <div className="panel">
@@ -58,6 +58,24 @@ export default function More({ setTab, goServiceSearch, showToast }) {
           </details>
         </div>
       </section>
+
+      {!fabVisible && (
+        <section className="section">
+          <div className="section-head"><h2>AI 매물 추천</h2></div>
+          <button className="dealer-entry" onClick={onRestoreChat}>
+            <div className="dealer-entry-left">
+              <div className="dealer-entry-icon">🤖</div>
+              <div>
+                <div className="dealer-entry-title">AI 챗봇 다시 켜기</div>
+                <div className="dealer-entry-sub">원하는 조건을 말하면 매물을 찾아드립니다</div>
+              </div>
+            </div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </section>
+      )}
 
       <section className="section" style={{paddingBottom:'22px'}}>
         <button className="dealer-entry" onClick={() => setTab('dealer')}>
