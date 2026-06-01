@@ -4,6 +4,10 @@ import { won } from '../utils.js'
 import Card from '../components/Card.jsx'
 
 function filteredListings(filters) {
+  // AI 챗봇이 추천한 매물 ID가 있으면 해당 매물만 표시
+  if (filters.chatIds && filters.chatIds.length > 0) {
+    return listings.filter(item => filters.chatIds.includes(item.id))
+  }
   let rows = listings.filter(item => {
     const f = filters
     const matchQ = !f.q || `${item.title} ${item.brand} ${item.model} ${item.location} ${item.badges.join(' ')}`.toLowerCase().includes(f.q.toLowerCase())

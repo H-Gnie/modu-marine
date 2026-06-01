@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/H-Gnie/modu-marine#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

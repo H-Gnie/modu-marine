@@ -7,6 +7,7 @@ import TopBar from './components/TopBar.jsx'
 import BottomNav from './components/BottomNav.jsx'
 import CompareBar from './components/CompareBar.jsx'
 import Toast from './components/Toast.jsx'
+import ChatBot from './components/ChatBot.jsx'
 import Home from './views/Home.jsx'
 import Search from './views/Search.jsx'
 import Detail from './views/Detail.jsx'
@@ -35,7 +36,7 @@ export default function App() {
   const [filters, setFilters] = useState({
     category: '전체', maxPrice: '', region: '전체',
     certified: false, delivery: false, sort: '추천순',
-    q: '', service: '전체매물'
+    q: '', service: '전체매물', chatIds: []
   })
   const [wished, setWished] = useState(() => loadSet('modu_wished'))
   const [compared, setCompared] = useState(() => loadSet('modu_compared'))
@@ -52,6 +53,28 @@ export default function App() {
     } catch { return [] }
   })
   const [toast, setToast] = useState({ msg: '', visible: false })
+  const [chatOpen, setChatOpen] = useState(false)
+
+  // 첫 방문 시 1.5초 후 자동 슬라이드업 (세션당 1회)
+  useEffect(() => {
+    if (!sessionStorage.getItem('chat_dismissed')) {
+      const t = setTimeout(() => setChatOpen(true), 1500)
+      return () => clearTimeout(t)
+    }
+  }, [])
+
+  const closeChat = useCallback(() => {
+    setChatOpen(false)
+    sessionStorage.setItem('chat_dismissed', '1')
+  }, [])
+
+  const handleChatSelect = useCallback((ids) => {
+    setFilters(prev => ({ ...prev, chatIds: ids, category: '전체', service: '전체매물', q: '' }))
+    setTabState('search')
+    setListing(null)
+    window.scrollTo(0, 0)
+    setChatOpen(false)
+  }, [])
 
   // persist
   useEffect(() => {
@@ -208,6 +231,11 @@ export default function App() {
         onGo={() => setTab('compare')}
       />
       <Toast msg={toast.msg} visible={toast.visible} />
+      <ChatBot
+        visible={chatOpen}
+        onClose={closeChat}
+        onSelectListings={handleChatSelect}
+      />
     </div>
   )
 }
