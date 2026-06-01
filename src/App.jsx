@@ -2,9 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { listings, PHOTO_SLOTS } from './data.js'
 import { freshSellData } from './state.js'
 import { byId, won, gradeOf, getPhotos } from './utils.js'
+import { useIsMobile } from './hooks/useIsMobile.js'
 
 import TopBar from './components/TopBar.jsx'
 import BottomNav from './components/BottomNav.jsx'
+import Sidebar from './components/Sidebar.jsx'
 import CompareBar from './components/CompareBar.jsx'
 import Toast from './components/Toast.jsx'
 import ChatBot from './components/ChatBot.jsx'
@@ -31,6 +33,7 @@ function loadSet(key) {
 }
 
 export default function App() {
+  const isMobile = useIsMobile()
   const [tab, setTabState] = useState('home')
   const [listing, setListing] = useState(null)
   const [filters, setFilters] = useState({
@@ -219,6 +222,64 @@ export default function App() {
     showToast,
   }
 
+  const mainContent = (
+    <>
+      {tab === 'home'    && <Home    {...sharedProps} />}
+      {tab === 'search'  && <Search  {...sharedProps} />}
+      {tab === 'detail'  && <Detail  {...sharedProps} />}
+      {tab === 'compare' && <Compare {...sharedProps} />}
+      {tab === 'sell'    && <Sell    {...sharedProps} />}
+      {tab === 'garage'  && <Garage  {...sharedProps} />}
+      {tab === 'dealer'  && <Dealer  {...sharedProps} />}
+      {tab === 'more'    && <More    {...sharedProps} onRestoreChat={restoreFab} fabVisible={fabVisible} />}
+    </>
+  )
+
+  const chatFab = fabVisible && (
+    <div className="chat-fab">
+      <button
+        className={`chat-fab-btn${!sessionStorage.getItem('chat_dismissed') ? ' pulse' : ''}`}
+        onClick={() => setChatOpen(v => !v)}
+        aria-label="AI 매물 추천 챗봇"
+      >
+        {chatOpen
+          ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        }
+      </button>
+      {!chatOpen && (
+        <button className="chat-fab-dismiss" onClick={dismissFab} aria-label="챗봇 숨기기">✕</button>
+      )}
+    </div>
+  )
+
+  const sharedOverlays = (
+    <>
+      <CompareBar compared={compared} tab={tab} onGo={() => setTab('compare')} />
+      <Toast msg={toast.msg} visible={toast.visible} />
+      <ChatBot visible={chatOpen} onClose={closeChat} onSelectListings={handleChatSelect} />
+      {chatFab}
+    </>
+  )
+
+  if (!isMobile) {
+    return (
+      <div className="app-desktop">
+        <Sidebar
+          tab={tab}
+          setTab={setTab}
+          compared={compared}
+          onCompare={() => setTab('compare')}
+          onWish={() => setTab('garage')}
+        />
+        <main id="app" className={`desktop-main ${screenClass}`}>
+          {mainContent}
+        </main>
+        {sharedOverlays}
+      </div>
+    )
+  }
+
   return (
     <div className="app-shell">
       <TopBar
@@ -230,44 +291,10 @@ export default function App() {
         onWish={() => setTab('garage')}
       />
       <main id="app" className={screenClass}>
-        {tab === 'home'    && <Home    {...sharedProps} />}
-        {tab === 'search'  && <Search  {...sharedProps} />}
-        {tab === 'detail'  && <Detail  {...sharedProps} />}
-        {tab === 'compare' && <Compare {...sharedProps} />}
-        {tab === 'sell'    && <Sell    {...sharedProps} />}
-        {tab === 'garage'  && <Garage  {...sharedProps} />}
-        {tab === 'dealer'  && <Dealer  {...sharedProps} />}
-        {tab === 'more'    && <More    {...sharedProps} onRestoreChat={restoreFab} fabVisible={fabVisible} />}
+        {mainContent}
       </main>
       <BottomNav tab={tab} setTab={setTab} />
-      <CompareBar
-        compared={compared}
-        tab={tab}
-        onGo={() => setTab('compare')}
-      />
-      <Toast msg={toast.msg} visible={toast.visible} />
-      <ChatBot
-        visible={chatOpen}
-        onClose={closeChat}
-        onSelectListings={handleChatSelect}
-      />
-      {fabVisible && (
-        <div className="chat-fab">
-          <button
-            className={`chat-fab-btn${!sessionStorage.getItem('chat_dismissed') ? ' pulse' : ''}`}
-            onClick={() => setChatOpen(v => !v)}
-            aria-label="AI 매물 추천 챗봇"
-          >
-            {chatOpen
-              ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-              : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            }
-          </button>
-          {!chatOpen && (
-            <button className="chat-fab-dismiss" onClick={dismissFab} aria-label="챗봇 숨기기">✕</button>
-          )}
-        </div>
-      )}
+      {sharedOverlays}
     </div>
   )
 }

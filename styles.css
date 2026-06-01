@@ -107,11 +107,13 @@ a { color: inherit; text-decoration: none; }
   padding: 0 0 96px;
   overflow-x: hidden;
 }
-.screen.padded { padding: 14px 14px 96px; }
+.screen.padded { padding: 14px 14px calc(96px + env(safe-area-inset-bottom)); }
+.screen.detail-pad { padding-bottom: calc(185px + env(safe-area-inset-bottom)); }
 
 /* ── Bottom Nav ──────────────────────────────── */
 .bottom-nav {
-  height: 62px;
+  height: calc(62px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   position: fixed;
   left: 50%;
   bottom: 0;
@@ -1422,8 +1424,7 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0;
 }
 
-/* ── Detail Pad ──────────────────────────────── */
-.screen.detail-pad { padding-bottom: 185px; }
+/* ── Detail Pad (mobile safe-area handled below) ── */
 
 /* ── Detail Gallery ──────────────────────────── */
 .detail-gallery { position: relative; }
@@ -1940,24 +1941,7 @@ details[open] .notice-summary::after { content: '︿'; }
   align-items: center;
 }
 
-/* ── Responsive ──────────────────────────────── */
-@media (max-width: 360px) {
-  .listing-card { grid-template-columns: 118px 1fr; }
-  .listing-card.compact { grid-template-columns: 108px 1fr; }
-  .filter-row, .cta-row, .info-grid { grid-template-columns: 1fr; }
-  .star-grid, .theme-grid, .sell-guide, .mode-grid { grid-template-columns: 1fr; }
-  .hero-search h1 { font-size: 20px; }
-  .detail-title { font-size: 19px; }
-  /* 홈 아이콘 텍스트 — 좁은 화면에서 clipping 방지 */
-  .home-icons button span { font-size: 10px; }
-  /* sticky CTA 텍스트 크기 축소 */
-  .sticky-btn { font-size: 12px; }
-  /* 비교함 레이블 열 너비 축소 */
-  .cmp-label-col { flex: 0 0 56px; font-size: 10px; }
-  .cmp-col { flex: 0 0 110px; }
-  /* 사진 슬롯 힌트 텍스트 */
-  .pgslot-hint { font-size: 9px; }
-}
+/* ── Responsive (small mobile) ───────────────── */
 
 /* ── ChatBot ─────────────────────────────────── */
 .chatbot-wrap {
@@ -2174,4 +2158,294 @@ details[open] .notice-summary::after { content: '︿'; }
   align-items: center;
   justify-content: center;
   line-height: 1;
+}
+
+/* ── PC Desktop Layout (≥ 768px) ─────────────── */
+@media (min-width: 768px) {
+  body {
+    background: #EEF2F8;
+  }
+
+  /* Desktop wrapper */
+  .app-desktop {
+    display: flex;
+    min-height: 100vh;
+    background: #EEF2F8;
+  }
+
+  /* Sidebar */
+  .desktop-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: var(--white);
+    border-right: 1px solid var(--line);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    box-shadow: 2px 0 12px rgba(11,29,46,.06);
+  }
+
+  /* Sidebar logo */
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid var(--line);
+    user-select: none;
+  }
+  .sidebar-brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+    color: white;
+    font-size: 22px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    letter-spacing: -1px;
+  }
+  .sidebar-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .sidebar-brand-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -.03em;
+    line-height: 1.2;
+  }
+  .sidebar-brand-sub {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: .01em;
+  }
+
+  /* Sidebar nav */
+  .sidebar-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 12px 0;
+    gap: 2px;
+    overflow-y: auto;
+  }
+  .sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--sub);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background .14s, color .14s;
+    width: 100%;
+  }
+  .sidebar-nav-item:hover {
+    background: var(--soft);
+    color: var(--ink);
+  }
+  .sidebar-nav-item.active {
+    background: #E8F0FF;
+    color: var(--blue);
+  }
+  .sidebar-nav-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sidebar-nav-icon svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .sidebar-nav-label {
+    flex: 1;
+  }
+
+  /* Sidebar utility actions */
+  .sidebar-actions {
+    padding: 10px 12px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .sidebar-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--sub);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .14s, color .14s;
+    width: 100%;
+    text-align: left;
+  }
+  .sidebar-action-btn:hover {
+    background: var(--soft);
+    color: var(--ink);
+  }
+  .sidebar-action-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .sidebar-action-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .sidebar-cmp-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: var(--orange);
+    color: white;
+    font-size: 9px;
+    font-weight: 900;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    border: 1.5px solid white;
+  }
+
+  /* Sidebar footer */
+  .sidebar-footer {
+    padding: 12px 20px 20px;
+    border-top: 1px solid var(--line);
+  }
+  .sidebar-footer-text {
+    margin: 0 0 2px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .sidebar-footer-sub {
+    margin: 0;
+    font-size: 10px;
+    color: var(--line);
+  }
+
+  /* Desktop main content */
+  .desktop-main {
+    margin-left: 240px;
+    flex: 1;
+    min-width: 0;
+    padding: 0;
+    /* Reset mobile screen padding */
+    padding-bottom: 0 !important;
+  }
+  .desktop-main.padded {
+    padding: 24px !important;
+  }
+  .desktop-main.screen {
+    min-height: 100vh;
+  }
+
+  /* 3-column card grid on PC */
+  .card-list {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  /* Listing card: stacked (vertical) on PC */
+  .listing-card {
+    grid-template-columns: 1fr !important;
+    min-height: unset !important;
+  }
+  .listing-card .thumb {
+    height: 180px;
+    width: 100%;
+  }
+  .listing-card.compact {
+    grid-template-columns: 1fr !important;
+    min-height: unset !important;
+  }
+  .listing-card.compact .thumb {
+    height: 160px;
+    width: 100%;
+  }
+
+  /* Chat FAB: reposition for desktop (account for sidebar) */
+  .chat-fab {
+    right: 32px;
+    bottom: 32px;
+  }
+
+  /* CompareBar: offset from sidebar */
+  .cmp-bar {
+    left: 240px;
+    bottom: 0;
+    width: calc(100% - 240px);
+    transform: translateY(0);
+  }
+  .cmp-bar.hidden {
+    transform: translateY(calc(100% + 4px));
+  }
+
+  /* Chatbot panel: not go behind sidebar */
+  .chatbot-wrap {
+    left: 260px;
+    transform: translateY(100%);
+    width: calc(100vw - 280px);
+    max-width: 440px;
+  }
+  .chatbot-wrap.open {
+    transform: translateY(0);
+  }
+}
+
+/* ── Small mobile (≤ 360px) override ─────────── */
+@media (max-width: 360px) {
+  .listing-card { grid-template-columns: 118px 1fr !important; }
+  .listing-card.compact { grid-template-columns: 108px 1fr !important; }
+  .filter-row, .cta-row, .info-grid { grid-template-columns: 1fr; }
+  .star-grid, .theme-grid, .sell-guide, .mode-grid { grid-template-columns: 1fr; }
+  .hero-search h1 { font-size: 20px; }
+  .detail-title { font-size: 19px; }
+  .home-icons button span { font-size: 10px; }
+  .sticky-btn { font-size: 12px; }
+  .cmp-label-col { flex: 0 0 56px; font-size: 10px; }
+  .cmp-col { flex: 0 0 110px; }
+  .pgslot-hint { font-size: 9px; }
 }
