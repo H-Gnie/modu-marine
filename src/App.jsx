@@ -61,17 +61,14 @@ export default function App() {
     () => localStorage.getItem('chat_fab_hidden') !== '1'
   )
 
-  // 첫 방문 시 1.5초 후 자동 슬라이드업 (세션당 1회)
+  // 접속 시 1.5초 후 무조건 자동 슬라이드업 (PC/모바일 공통)
   useEffect(() => {
-    if (!sessionStorage.getItem('chat_dismissed') && fabVisible) {
-      const t = setTimeout(() => setChatOpen(true), 1500)
-      return () => clearTimeout(t)
-    }
-  }, [fabVisible])
+    const t = setTimeout(() => setChatOpen(true), 1500)
+    return () => clearTimeout(t)
+  }, [])
 
   const closeChat = useCallback(() => {
     setChatOpen(false)
-    sessionStorage.setItem('chat_dismissed', '1')
   }, [])
 
   const dismissFab = useCallback(() => {
