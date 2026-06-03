@@ -7,6 +7,7 @@ import { useIsMobile } from './hooks/useIsMobile.js'
 import TopBar from './components/TopBar.jsx'
 import BottomNav from './components/BottomNav.jsx'
 import Sidebar from './components/Sidebar.jsx'
+import PCTopNav from './components/PCTopNav.jsx'
 import CompareBar from './components/CompareBar.jsx'
 import Toast from './components/Toast.jsx'
 import ChatBot from './components/ChatBot.jsx'
@@ -278,6 +279,10 @@ export default function App() {
   )
 
   if (!isMobile) {
+    const pcNavProps = {
+      tab, setTab, updateFilters, goTheme, goServiceSearch,
+      wished, compared, showToast
+    }
     return (
       <div className="app-desktop">
         <Sidebar
@@ -287,9 +292,12 @@ export default function App() {
           onCompare={() => setTab('compare')}
           onWish={() => setTab('garage')}
         />
-        <main id="app" className={`desktop-main ${screenClass}`}>
-          {mainContent}
-        </main>
+        <div className="desktop-right">
+          <PCTopNav {...pcNavProps} />
+          <main id="app" className={`desktop-main ${screenClass}`}>
+            {mainContent}
+          </main>
+        </div>
         {sharedOverlays}
       </div>
     )
