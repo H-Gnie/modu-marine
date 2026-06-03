@@ -18,6 +18,7 @@ import Sell from './views/Sell.jsx'
 import Garage from './views/Garage.jsx'
 import More from './views/More.jsx'
 import Dealer from './views/Dealer.jsx'
+import Marinas from './views/Marinas.jsx'
 
 const CHAT_AUTO_DISMISSED_KEY = 'chat_auto_dismissed'
 const CHAT_FAB_HIDDEN_KEY = 'chat_fab_hidden'
@@ -216,7 +217,7 @@ export default function App() {
     else { setTabState('home'); window.scrollTo(0, 0) }
   }, [tab])
 
-  const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare'].includes(tab)
+  const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare', 'marinas'].includes(tab)
   const isDetail = tab === 'detail'
   const screenClass = 'screen' + (isPadded ? ' padded' : '') + (isDetail ? ' detail-pad' : '')
 
@@ -238,6 +239,7 @@ export default function App() {
       {tab === 'sell'    && <Sell    {...sharedProps} />}
       {tab === 'garage'  && <Garage  {...sharedProps} />}
       {tab === 'dealer'  && <Dealer  {...sharedProps} />}
+      {tab === 'marinas' && <Marinas {...sharedProps} />}
       {tab === 'more'    && <More    {...sharedProps} onRestoreChat={restoreFab} fabVisible={fabVisible} />}
     </>
   )

@@ -84,6 +84,7 @@ export default function Home({
         <button onClick={() => goServiceSearch('모두진단')}>진단 매물</button>
         <button onClick={() => goServiceSearch('모두인증')}>인증 매물</button>
         <button onClick={() => goServiceSearch('홈배송')}>홈배송</button>
+        <button onClick={() => setTab('marinas')}>계류장</button>
         <button onClick={() => showToast('AI시세 화면은 다음 단계에서 연결합니다')}>AI시세</button>
       </div>
 

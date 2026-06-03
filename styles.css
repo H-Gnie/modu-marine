@@ -908,6 +908,201 @@ a { color: inherit; text-decoration: none; }
 .dealer-entry-sub   { font-size: 12px; color: rgba(255,255,255,.6); font-weight: 600; }
 .dealer-entry svg   { color: rgba(255,255,255,.5); flex-shrink: 0; }
 
+/* ── Marina Finder ───────────────────────────── */
+.marina-hero {
+  border-radius: var(--r-lg);
+  background:
+    linear-gradient(135deg, rgba(11,29,46,.88), rgba(20,105,255,.7)),
+    url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80')
+    center / cover;
+  color: white;
+  padding: 20px;
+  min-height: 178px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.marina-hero h1 {
+  margin: 8px 0 7px;
+  font-size: 24px;
+  line-height: 1.22;
+  font-weight: 950;
+  letter-spacing: -.025em;
+}
+.marina-hero p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: rgba(255,255,255,.78);
+  max-width: 245px;
+}
+.marina-hero-stat {
+  width: 82px;
+  height: 82px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  backdrop-filter: blur(10px);
+}
+.marina-hero-stat strong {
+  font-size: 28px;
+  font-weight: 950;
+  line-height: 1;
+}
+.marina-hero-stat span {
+  margin-top: 5px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: rgba(255,255,255,.78);
+}
+.marina-filter { margin-top: 14px; }
+.marina-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--sub);
+}
+.marina-check input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--blue);
+}
+.marina-list {
+  display: grid;
+  gap: 14px;
+}
+.marina-card {
+  background: white;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.marina-img {
+  height: 155px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.marina-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.28));
+}
+.marina-status {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 2;
+  height: 25px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  color: white;
+  font-size: 11px;
+  font-weight: 900;
+}
+.marina-status.good { background: rgba(20,105,255,.95); }
+.marina-status.warn { background: rgba(255,95,31,.95); }
+.marina-status.full { background: rgba(61,79,97,.92); }
+.marina-body { padding: 15px; }
+.marina-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+.marina-title-row h2 {
+  margin: 0 0 4px;
+  color: var(--navy);
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 950;
+  letter-spacing: -.025em;
+}
+.marina-title-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.marina-price {
+  min-width: 75px;
+  text-align: right;
+  color: var(--blue);
+}
+.marina-price strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 950;
+  letter-spacing: -.025em;
+}
+.marina-price span {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 800;
+}
+.marina-desc {
+  margin: 11px 0 12px;
+  color: var(--sub);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.marina-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.marina-spec-grid div {
+  border-radius: var(--r-sm);
+  background: var(--soft);
+  padding: 10px 8px;
+}
+.marina-spec-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+.marina-spec-grid strong {
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 900;
+}
+.marina-tags { margin-bottom: 10px; }
+.marina-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 13px;
+}
+.marina-services span {
+  color: var(--muted);
+  background: #F8FAFD;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 5px 7px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.marina-actions { margin-top: 0; }
+.marina-actions button {
+  height: 42px;
+}
+
 /* ── Dealer Dashboard ────────────────────────── */
 .dealer-header {
   display: flex;
@@ -2410,6 +2605,14 @@ details[open] .notice-summary::after { content: '︿'; }
     grid-template-columns: repeat(3, 1fr) !important;
     gap: 16px !important;
   }
+  .marina-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .marina-hero {
+    min-height: 220px;
+    align-items: center;
+  }
 
   /* Listing card: stacked (vertical) on PC */
   .listing-card {
@@ -2473,4 +2676,8 @@ details[open] .notice-summary::after { content: '︿'; }
   .pgslot-hint { font-size: 9px; }
   .quick-prompt { max-width: 100%; font-size: 11.5px; }
   .chatbot-input { font-size: 13px; padding: 0 13px; }
+  .marina-hero { padding: 16px; min-height: 165px; }
+  .marina-hero h1 { font-size: 21px; }
+  .marina-hero-stat { width: 72px; height: 72px; }
+  .marina-spec-grid { grid-template-columns: 1fr; }
 }

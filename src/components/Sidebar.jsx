@@ -43,6 +43,18 @@ const navItems = [
     ),
   },
   {
+    tab: 'marinas',
+    label: '계류장',
+    icon: (
+      <svg viewBox="0 0 24 24">
+        <path d="M4 20h16"/>
+        <path d="M6 16c2 0 2-1.5 4-1.5S12 16 14 16s2-1.5 4-1.5S20 16 22 16"/>
+        <path d="M12 3v11"/>
+        <path d="M8 7l4-4 4 4"/>
+      </svg>
+    ),
+  },
+  {
     tab: 'more',
     label: '전체서비스',
     icon: (
