@@ -276,6 +276,58 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -.01em;
   white-space: nowrap;
 }
+.service-strip-highlight {
+  border-color: var(--blue) !important;
+  color: var(--blue) !important;
+  background: rgba(20,105,255,.07) !important;
+}
+
+/* ── Marina home entry card ──────────────────── */
+.marina-home-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(11,29,46,.04), rgba(20,105,255,.06));
+  border: 1.5px solid rgba(20,105,255,.2);
+  border-radius: var(--r-lg);
+  text-align: left;
+  cursor: pointer;
+}
+.marina-home-entry-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #0B1D2E, #1469FF);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.marina-home-entry-text {
+  flex: 1;
+  min-width: 0;
+}
+.marina-home-entry-text strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 950;
+  color: var(--navy);
+  letter-spacing: -.02em;
+}
+.marina-home-entry-text span {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.marina-home-entry-arrow {
+  color: var(--blue);
+  flex-shrink: 0;
+}
 
 /* ── Section ─────────────────────────────────── */
 .section { padding: 22px 16px 0; }

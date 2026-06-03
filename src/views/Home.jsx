@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { listings } from '../data.js'
+import { listings, MARINAS } from '../data.js'
 import { won } from '../utils.js'
 import Card from '../components/Card.jsx'
 
@@ -81,10 +81,10 @@ export default function Home({
 
       <div className="service-strip">
         <button onClick={() => goServiceSearch('전체매물')}>전체매물</button>
+        <button className="service-strip-highlight" onClick={() => setTab('marinas')}>⚓ 계류장</button>
         <button onClick={() => goServiceSearch('모두진단')}>진단 매물</button>
         <button onClick={() => goServiceSearch('모두인증')}>인증 매물</button>
         <button onClick={() => goServiceSearch('홈배송')}>홈배송</button>
-        <button onClick={() => setTab('marinas')}>계류장</button>
         <button onClick={() => showToast('AI시세 화면은 다음 단계에서 연결합니다')}>AI시세</button>
       </div>
 
@@ -165,6 +165,26 @@ export default function Home({
           </div>
           <button className="wide-btn orange" onClick={() => setTab('sell')}>내마린팔기</button>
         </div>
+      </section>
+
+      <section className="section">
+        <button className="marina-home-entry" onClick={() => setTab('marinas')}>
+          <div className="marina-home-entry-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 20h16"/>
+              <path d="M6 16c2 0 2-1.5 4-1.5S12 16 14 16s2-1.5 4-1.5"/>
+              <path d="M12 3v11"/>
+              <path d="M8 7l4-4 4 4"/>
+            </svg>
+          </div>
+          <div className="marina-home-entry-text">
+            <strong>계류장 찾기</strong>
+            <span>전국 {MARINAS.length}곳 · 상담 가능 {MARINAS.reduce((s, m) => s + m.available, 0)}자리</span>
+          </div>
+          <svg className="marina-home-entry-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
       </section>
 
       <section className="section">
