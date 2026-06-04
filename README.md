@@ -4,6 +4,70 @@
 
 ---
 
+## ⚡ Windows 빠른 시작 (처음 세팅)
+
+> **이 섹션만 따라가면 5분 안에 로컬에서 실행됩니다.**
+
+### 1단계 — 필수 도구 설치 (처음 한 번만)
+
+| 도구 | 다운로드 | 비고 |
+|---|---|---|
+| **Git** | https://git-scm.com/download/win | 기본 옵션으로 설치 |
+| **Node.js LTS** | https://nodejs.org/en (LTS 버튼) | npm 자동 포함 |
+| **VS Code** | https://code.visualstudio.com | 권장 에디터 |
+
+설치 후 **PowerShell** (또는 Git Bash) 에서 확인:
+```powershell
+git --version    # git version 2.x
+node --version   # v20.x 또는 v22.x
+npm --version    # 10.x
+```
+
+### 2단계 — 저장소 클론
+
+```powershell
+git clone https://github.com/H-Gnie/modu-marine.git
+cd modu-marine
+```
+
+### 3단계 — 패키지 설치
+
+```powershell
+npm install
+```
+
+### 4단계 — 개발 서버 실행
+
+```powershell
+npm run dev
+```
+
+브라우저에서 `http://localhost:5173` 접속 → 앱 확인.
+
+> **AI 챗봇**은 Vercel 환경변수(`ANTHROPIC_API_KEY`)가 없으면 동작하지 않습니다.  
+> 챗봇 버튼을 무시하면 나머지 모든 기능은 정상 작동합니다.  
+> 챗봇까지 로컬에서 테스트하려면 아래 [챗봇 로컬 테스트](#챗봇-로컬-테스트-선택-사항) 참고.
+
+### 5단계 — 수정 후 GitHub에 올리기
+
+```powershell
+git add .
+git commit -m "수정 내용 설명"
+git push origin main
+# → Vercel이 자동으로 감지해서 1~2분 내 https://modu-marine.vercel.app 반영
+```
+
+### 챗봇 로컬 테스트 (선택 사항)
+
+```powershell
+npm install -g vercel          # Vercel CLI 설치 (처음 한 번)
+vercel login                   # GitHub 계정으로 로그인
+vercel env pull .env.local     # Vercel에 설정된 환경변수 로컬로 가져오기
+vercel dev                     # http://localhost:3000 에서 챗봇 포함 전체 동작
+```
+
+---
+
 ## 목차
 
 1. [프로젝트 개요](#1-프로젝트-개요)
@@ -269,37 +333,43 @@ modu-marine/
 
 ### 사전 조건
 
-- Node.js 18+ (권장 20+)
-- npm
+- Node.js 20 LTS 이상 (Windows: nodejs.org LTS 설치)
+- npm (Node.js에 포함)
+- Git (Windows: git-scm.com)
 
-### 설치 & 실행
+### 명령어 요약
 
 ```bash
-git clone https://github.com/H-Gnie/modu-marine.git
-cd modu-marine
-npm install
-npm run dev
+npm install        # 패키지 설치 (처음 한 번 또는 package.json 변경 시)
+npm run dev        # 개발 서버 → http://localhost:5173
+npm run build      # dist/ 생성 (배포용 빌드)
+npm run preview    # 빌드 결과물 로컬 확인
 ```
 
-브라우저에서 `http://localhost:5173` 접속.
-
-### 빌드
+### 자주 쓰는 Git 명령
 
 ```bash
-npm run build      # dist/ 생성
-npm run preview    # 빌드 결과물 로컬 확인
+git pull origin main          # 최신 코드 받기
+git add .                     # 변경 파일 전체 스테이징
+git commit -m "작업 내용"     # 커밋
+git push origin main          # GitHub에 올리기 → Vercel 자동 배포
+git log --oneline             # 커밋 이력 확인
+git diff                      # 현재 변경사항 확인
 ```
 
 ### AI 챗봇 로컬 테스트
 
-챗봇은 Vercel 서버리스 함수를 사용합니다. 로컬에서 테스트하려면:
+챗봇은 Vercel 서버리스 함수(`/api/chat.js`)를 사용합니다.  
+`npm run dev`만으로는 챗봇 API가 동작하지 않습니다.
 
 ```bash
-npm install -g vercel
-vercel dev   # localhost:3000 에서 /api/chat 라우트 포함 동작
+npm install -g vercel         # Vercel CLI 설치
+vercel login                  # GitHub 계정으로 로그인
+vercel env pull .env.local    # Vercel 환경변수 로컬에 저장
+vercel dev                    # http://localhost:3000 에서 챗봇 포함 실행
 ```
 
-또는 Vercel 없이 테스트할 경우, `src/components/ChatBot.jsx`에서 fetch URL을 직접 Anthropic API로 교체하고 브라우저에 API 키를 노출하지 않도록 주의하세요.
+> `.env.local` 파일은 `.gitignore`에 포함되어 있어 GitHub에 올라가지 않습니다.
 
 ---
 
