@@ -44,30 +44,35 @@ export default async function handler(req, res) {
     return `ID:${l.id} [${l.category}] ${l.title} / ${l.price}만원 / ${l.location} / ${l.hours}h / 배지:${badges}`;
   }).join('\n');
 
-  const fullPrompt = SYSTEM_PROMPT + '\n\n현재 매물 목록:\n' + listingSummary + '\n\n사용자 질문: ' + cleanMessage;
-
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: fullPrompt }] }],
-          generationConfig: { maxOutputTokens: 512, temperature: 0.3 },
-        }),
-      }
-    );
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        max_tokens: 512,
+        temperature: 0.3,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT + '\n\n현재 매물 목록:\n' + listingSummary },
+          { role: 'user', content: cleanMessage },
+        ],
+      }),
+    });
 
     if (!response.ok) {
       const errBody = await response.json().catch(() => ({}));
-      console.error('Gemini API error:', response.status, JSON.stringify(errBody));
-      const detail = errBody?.error?.message || errBody?.error?.status || response.status;
-      return res.status(503).json({ message: `Gemini 오류(${detail}) — 잠시 후 다시 시도해 주세요.`, listingIds: [] });
+      console.error('Groq API error:', response.status, JSON.stringify(errBody));
+      if (response.status === 429) {
+        return res.status(503).json({ message: 'AI 추천 사용량이 잠시 제한되었습니다. 검색 필터를 먼저 이용해 주세요.', listingIds: [] });
+      }
+      return res.status(503).json({ message: 'AI 추천 연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.', listingIds: [] });
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const text = data.choices?.[0]?.message?.content?.trim() || '';
 
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -80,7 +85,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ message: text || '조건에 맞는 매물을 찾아봤습니다.', listingIds: [] });
     }
   } catch (err) {
-    console.error('Gemini fetch error:', err);
+    console.error('Groq fetch error:', err);
     return res.status(500).json({ message: 'AI 추천 연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.', listingIds: [] });
   }
 }
