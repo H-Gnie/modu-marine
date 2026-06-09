@@ -143,6 +143,8 @@ export default function ChatBot({ onSelectListings, onClose, visible }) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKey}
+          onKeyUp={handleKey}
+          enterKeyHint="send"
           placeholder="예) 500만원 이하 제트스키"
           maxLength={MAX_MESSAGE_LENGTH + 20}
           disabled={loading}

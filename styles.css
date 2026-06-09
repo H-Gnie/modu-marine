@@ -2197,7 +2197,7 @@ details[open] .notice-summary::after { content: '︿'; }
   bottom: 56px;
   transform: translateX(-50%) translateY(100%);
   width: min(430px, 100vw);
-  height: 70vh;
+  height: calc(100vh - 120px);
   max-height: 560px;
   background: var(--white);
   border-radius: 20px 20px 0 0;
