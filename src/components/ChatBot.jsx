@@ -122,41 +122,42 @@ export default function ChatBot({ onSelectListings, onClose, visible }) {
         <div ref={bottomRef} />
       </div>
 
-      <div className="quick-prompts" aria-label="추천 질문">
-        {QUICK_PROMPTS.map(prompt => (
-          <button
-            key={prompt}
-            type="button"
-            className="quick-prompt"
-            onClick={() => send(prompt)}
+      <div className="chatbot-footer">
+        <div className="quick-prompts" aria-label="추천 질문">
+          {QUICK_PROMPTS.map(prompt => (
+            <button
+              key={prompt}
+              type="button"
+              className="quick-prompt"
+              onClick={() => send(prompt)}
+              disabled={loading}
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+        <div className="chatbot-input-row">
+          <input
+            ref={inputRef}
+            className="chatbot-input"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            onKeyUp={handleKey}
+            enterKeyHint="send"
+            placeholder="예) 500만원 이하 제트스키"
+            maxLength={MAX_MESSAGE_LENGTH + 20}
             disabled={loading}
+          />
+          <button
+            className="chatbot-send"
+            onClick={send}
+            disabled={!input.trim() || loading}
+            aria-label="전송"
           >
-            {prompt}
+            ↑
           </button>
-        ))}
-      </div>
-
-      <div className="chatbot-input-row">
-        <input
-          ref={inputRef}
-          className="chatbot-input"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={handleKey}
-          onKeyUp={handleKey}
-          enterKeyHint="send"
-          placeholder="예) 500만원 이하 제트스키"
-          maxLength={MAX_MESSAGE_LENGTH + 20}
-          disabled={loading}
-        />
-        <button
-          className="chatbot-send"
-          onClick={send}
-          disabled={!input.trim() || loading}
-          aria-label="전송"
-        >
-          ↑
-        </button>
+        </div>
       </div>
     </div>
   );
