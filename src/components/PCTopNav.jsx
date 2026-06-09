@@ -14,7 +14,7 @@ const CATS = [
 
 export default function PCTopNav({
   tab, setTab, updateFilters, goTheme, goServiceSearch,
-  wished, compared, showToast
+  wished, compared, showToast, user, openAuth, handleLogout
 }) {
   const [q, setQ] = useState('')
 
@@ -62,9 +62,15 @@ export default function PCTopNav({
             </svg>
             비교함{compared?.size > 0 ? <span className="pc-util-badge">{compared.size}</span> : null}
           </button>
-          <button className="pc-util-btn" onClick={() => showToast('로그인 기능은 다음 단계에서 연결됩니다')}>
-            로그인
-          </button>
+          {user ? (
+            <button className="pc-util-btn" onClick={handleLogout}>
+              {user.user_metadata?.name || user.email?.split('@')[0]} · 로그아웃
+            </button>
+          ) : (
+            <button className="pc-util-btn login-btn" onClick={openAuth}>
+              로그인
+            </button>
+          )}
           <button className="pc-sell-btn" onClick={() => setTab('sell')}>내마린팔기</button>
         </div>
       </div>

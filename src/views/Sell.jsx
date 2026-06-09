@@ -309,31 +309,45 @@ export default function Sell({
   submitSell
 }) {
   const s = sellStep
+  // 로컬 상태로 관리해 타이핑 시 App 리렌더 방지
+  const [local, setLocal] = useState(sellData)
 
   function onChange(key, val) {
-    setSellData(prev => ({ ...prev, [key]: val }))
+    setLocal(prev => ({ ...prev, [key]: val }))
   }
 
   function onChangePhoto(key, file) {
-    setSellData(prev => {
+    setLocal(prev => {
       const oldUrl = prev.photos[key]
       if (oldUrl) URL.revokeObjectURL(oldUrl)
-      return { ...prev, photos: { ...prev.photos, [key]: URL.createObjectURL(file) } }
+      return {
+        ...prev,
+        photos: { ...prev.photos, [key]: URL.createObjectURL(file) },
+        photoFiles: { ...prev.photoFiles, [key]: file }
+      }
     })
   }
 
   function onRemovePhoto(key) {
-    setSellData(prev => {
+    setLocal(prev => {
       const oldUrl = prev.photos[key]
       if (oldUrl) URL.revokeObjectURL(oldUrl)
       const photos = { ...prev.photos }
+      const photoFiles = { ...prev.photoFiles }
       delete photos[key]
-      return { ...prev, photos }
+      delete photoFiles[key]
+      return { ...prev, photos, photoFiles }
     })
   }
 
-  function onNext() { setSellStep(s => Math.min(6, s + 1)) }
-  function onPrev() { setSellStep(s => Math.max(0, s - 1)) }
+  function onNext() {
+    setSellData(local)
+    setSellStep(s => Math.min(6, s + 1))
+  }
+  function onPrev() {
+    setSellData(local)
+    setSellStep(s => Math.max(0, s - 1))
+  }
 
   const steps = Array.from({ length: 7 }, (_, i) => (
     <div key={i} className={`step${i <= s ? ' active' : ''}`} />
@@ -341,12 +355,12 @@ export default function Sell({
 
   const stepComponents = [
     <Step0 key={0} sellMode={sellMode} setSellMode={setSellMode} onNext={onNext} />,
-    <Step1 key={1} d={sellData} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
-    <Step2 key={2} d={sellData} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
-    <Step3 key={3} d={sellData} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
-    <Step4 key={4} d={sellData} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
-    <Step5 key={5} d={sellData} onChange={onChange} onChangePhoto={onChangePhoto} onRemovePhoto={onRemovePhoto} onNext={onNext} onPrev={onPrev} />,
-    <Step6 key={6} d={sellData} sellMode={sellMode} onPrev={onPrev} onSubmit={() => submitSell(sellData)} />,
+    <Step1 key={1} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
+    <Step2 key={2} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
+    <Step3 key={3} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
+    <Step4 key={4} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
+    <Step5 key={5} d={local} onChange={onChange} onChangePhoto={onChangePhoto} onRemovePhoto={onRemovePhoto} onNext={onNext} onPrev={onPrev} />,
+    <Step6 key={6} d={local} sellMode={sellMode} onPrev={onPrev} onSubmit={() => submitSell(local)} />,
   ]
 
   return (

@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from 'react'
-import { listings } from '../data.js'
 import { won } from '../utils.js'
 import Card from '../components/Card.jsx'
 
-function filteredListings(filters) {
+function filteredListings(listings, filters) {
   // AI 챗봇이 추천한 매물 ID가 있으면 해당 매물만 표시
   if (filters.chatIds && filters.chatIds.length > 0) {
     return listings.filter(item => filters.chatIds.includes(item.id))
@@ -35,10 +34,10 @@ const services = ['전체매물', '모두진단', '모두인증', '홈배송', '
 const priceopts = [3000, 5000, 8000, 15000, 25000]
 
 export default function Search({
-  filters, updateFilters,
+  filters, updateFilters, listings = [],
   wished, compared, toggleWish, toggleCompare, viewDetail
 }) {
-  const rows = filteredListings(filters)
+  const rows = filteredListings(listings, filters)
 
   return (
     <>

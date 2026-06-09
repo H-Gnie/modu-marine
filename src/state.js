@@ -30,7 +30,8 @@ export const freshSellData = () => ({
   inspStatus:'유효',
   insStatus:'가입',
   desc:'',
-  photos:{}
+  photos:{},      // key → blob URL (preview)
+  photoFiles:{}   // key → File object (upload)
 });
 
 export function saveState() {

@@ -8,9 +8,9 @@ function badgeHtml(item) {
 }
 
 export default function Card({ item, compact = false, wished, compared, onWish, onCompare, onDetail }) {
-  const grade = gradeOf(item.score)
+  const grade = gradeOf(item.score ?? 0)
   const gradeCls = grade.replace('+', 'p')
-  const mktPart = (item.market.split('·')[1] || '').trim()
+  const mktPart = (item.market?.split('·')[1] || '').trim()
   const hintCls = mktPart.includes('낮음') ? 'hint-good' : mktPart.includes('높음') ? 'hint-high' : 'hint-fair'
   const isWished = wished.has(item.id)
   const isCompared = compared.has(item.id)

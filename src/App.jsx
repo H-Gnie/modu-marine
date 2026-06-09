@@ -3,6 +3,8 @@ import { listings, PHOTO_SLOTS } from './data.js'
 import { freshSellData } from './state.js'
 import { byId, won, gradeOf, getPhotos } from './utils.js'
 import { useIsMobile } from './hooks/useIsMobile.js'
+import { useListings } from './hooks/useListings.js'
+import { supabase } from './lib/supabase.js'
 
 import TopBar from './components/TopBar.jsx'
 import BottomNav from './components/BottomNav.jsx'
@@ -11,6 +13,7 @@ import PCTopNav from './components/PCTopNav.jsx'
 import CompareBar from './components/CompareBar.jsx'
 import Toast from './components/Toast.jsx'
 import ChatBot from './components/ChatBot.jsx'
+import AuthModal from './components/AuthModal.jsx'
 import Home from './views/Home.jsx'
 import Search from './views/Search.jsx'
 import Detail from './views/Detail.jsx'
@@ -39,7 +42,10 @@ function loadSet(key) {
 
 export default function App() {
   const isMobile = useIsMobile()
+  const { listings: allListings, refresh: refreshListings } = useListings()
   const [tab, setTabState] = useState('home')
+  const [user, setUser] = useState(null)
+  const [authOpen, setAuthOpen] = useState(false)
   const [listing, setListing] = useState(null)
   const [filters, setFilters] = useState({
     category: '전체', maxPrice: '', region: '전체',
@@ -62,6 +68,17 @@ export default function App() {
   })
   const [toast, setToast] = useState({ msg: '', visible: false })
   const [chatOpen, setChatOpen] = useState(false)
+
+  // Supabase Auth 세션 감지
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+    })
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
   const [fabVisible, setFabVisible] = useState(
     () => localStorage.getItem(CHAT_FAB_HIDDEN_KEY) !== '1'
   )
@@ -118,6 +135,14 @@ export default function App() {
     setTimeout(() => setToast(t => ({ ...t, visible: false })), 1600)
   }, [])
 
+  const openAuth = useCallback(() => setAuthOpen(true), [])
+  const closeAuth = useCallback(() => setAuthOpen(false), [])
+
+  const handleLogout = useCallback(async () => {
+    await supabase.auth.signOut()
+    showToast('로그아웃 되었습니다')
+  }, [showToast])
+
   const setTab = useCallback((t) => {
     setTabState(t)
     setListing(null)
@@ -125,12 +150,12 @@ export default function App() {
   }, [])
 
   const viewDetail = useCallback((id) => {
-    const item = byId(id)
+    const item = allListings.find(x => x.id === Number(id)) || byId(id)
     setListing(item)
     setTabState('detail')
     setRecent(prev => [Number(id), ...prev.filter(x => x !== Number(id))].slice(0, 8))
     window.scrollTo(0, 0)
-  }, [])
+  }, [allListings])
 
   const toggleWish = useCallback((id) => {
     const numId = Number(id)
@@ -192,25 +217,73 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [])
 
-  const submitSell = useCallback((finalData) => {
-    const photoUrls = PHOTO_SLOTS.map(s => finalData.photos[s.key]).filter(Boolean)
-    setSellRequests(prev => [{
-      mode: sellMode === 'pro' ? '내마린팔기 Pro' : '내마린팔기 Self',
-      status: '접수 완료',
-      type: finalData.type, brand: finalData.brand, model: finalData.model,
-      year: finalData.year, price: finalData.price, region: finalData.region,
-      created: new Date().toLocaleDateString('ko-KR'),
-      image: photoUrls[0] || '',
-      photos: { ...finalData.photos },
-      diagnosisNoticeVersion: '1.0',
-      diagnosisNoticeAcceptedAt: new Date().toISOString(),
-      consentAcceptedAt: new Date().toISOString(),
-    }, ...prev])
-    setSellStep(0)
-    setSellData(freshSellData())
-    showToast('내마린팔기 접수 완료')
-    setTab('garage')
-  }, [sellMode, showToast, setTab])
+  const submitSell = useCallback(async (finalData) => {
+    if (!user) { showToast('로그인 후 매물을 등록할 수 있습니다'); openAuth(); return }
+
+    showToast('매물 등록 중...')
+
+    try {
+      // 1. 이미지 Supabase Storage 업로드
+      const imageUrls = []
+      const fileEntries = Object.entries(finalData.photoFiles || {})
+      for (const [key, file] of fileEntries) {
+        if (!file) continue
+        const ext = file.name.split('.').pop()
+        const path = `${user.id}/${Date.now()}_${key}.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('listing-images')
+          .upload(path, file, { upsert: true })
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('listing-images')
+            .getPublicUrl(path)
+          imageUrls.push(publicUrl)
+        }
+      }
+
+      // 2. listings 테이블에 저장
+      const { data, error } = await supabase.from('listings').insert({
+        seller_id: user.id,
+        type: finalData.type,
+        brand: finalData.brand || null,
+        model: finalData.model || null,
+        year: finalData.year ? Number(finalData.year) : null,
+        price: Number(finalData.price) || 0,
+        region: finalData.region || null,
+        marina: finalData.marina || null,
+        engine: finalData.engine || null,
+        engine_hours: finalData.hours ? Number(finalData.hours) : null,
+        length_m: finalData.length ? parseFloat(finalData.length) : null,
+        horsepower: finalData.hp ? Number(finalData.hp) : null,
+        description: finalData.desc || null,
+        sell_mode: sellMode,
+        images: imageUrls.length > 0 ? imageUrls : null,
+        status: 'active',
+      }).select().single()
+
+      if (error) throw error
+
+      // 3. 로컬 상태에도 추가 (내마린고 즉시 반영)
+      setSellRequests(prev => [{
+        id: data.id,
+        mode: sellMode === 'pro' ? '내마린팔기 Pro' : '내마린팔기 Self',
+        status: '접수 완료',
+        type: data.type, brand: data.brand, model: data.model,
+        year: data.year, price: data.price, region: data.region,
+        created: new Date().toLocaleDateString('ko-KR'),
+        image: imageUrls[0] || '',
+      }, ...prev])
+
+      setSellStep(0)
+      setSellData(freshSellData())
+      refreshListings()
+      showToast('매물이 등록됐습니다!')
+      setTab('garage')
+    } catch (err) {
+      console.error('매물 등록 오류:', err)
+      showToast('등록 중 오류가 발생했습니다')
+    }
+  }, [user, sellMode, showToast, openAuth, setTab])
 
   const handleBack = useCallback(() => {
     if (tab === 'detail') { setTabState('search'); window.scrollTo(0, 0) }
@@ -225,10 +298,12 @@ export default function App() {
   const sharedProps = {
     tab, listing, filters, wished, compared, recent,
     sellStep, sellMode, sellData, sellRequests,
+    listings: allListings,
     setTab, viewDetail, toggleWish, toggleCompare, clearCompare,
     updateFilters, goServiceSearch, goBudget, goTheme,
     setSellStep, setSellMode, setSellData, submitSell,
     showToast,
+    user, openAuth, handleLogout,
   }
 
   const mainContent = (
@@ -275,13 +350,14 @@ export default function App() {
       <Toast msg={toast.msg} visible={toast.visible} />
       <ChatBot visible={chatOpen} onClose={closeChat} onSelectListings={handleChatSelect} />
       {chatFab}
+      {authOpen && <AuthModal onClose={closeAuth} />}
     </>
   )
 
   if (!isMobile) {
     const pcNavProps = {
       tab, setTab, updateFilters, goTheme, goServiceSearch,
-      wished, compared, showToast
+      wished, compared, showToast, user, openAuth, handleLogout
     }
     return (
       <div className="app-desktop">

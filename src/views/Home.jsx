@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { listings, MARINAS } from '../data.js'
+import { MARINAS } from '../data.js'
 import { won } from '../utils.js'
 import Card from '../components/Card.jsx'
 
@@ -10,6 +10,7 @@ function badgeHtml(item) {
 }
 
 export default function Home({
+  listings = [],
   wished, compared, toggleWish, toggleCompare, viewDetail,
   setTab, goServiceSearch, goBudget, goTheme, updateFilters, showToast
 }) {
