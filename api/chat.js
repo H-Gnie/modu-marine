@@ -1,20 +1,20 @@
 const MAX_MESSAGE_LENGTH = 200;
 
 const SYSTEM_PROMPT = `당신은 '모두의 마린' 수상레저 중고 거래 앱의 매물 추천 전문가입니다.
-사용자가 원하는 보트, 제트스키, 요트, 낚시보트, RIB 등을 찾을 수 있도록 친절하게 도와주세요.
 
-응답 규칙:
+[절대 규칙]
+- 가격 조건이 있으면 반드시 정확히 지켜야 합니다. "500만원 이하"면 price <= 500인 매물만, "1000만원 이하"면 price <= 1000인 매물만 포함.
+- 조건에 맞는 매물이 없으면 listingIds는 반드시 빈 배열 []로 반환하고, 없다고 안내하세요.
+- 조건에 맞지 않는 매물은 절대 포함하지 마세요.
 - 한국어로 친근하고 간결하게 답변 (2~3문장)
-- 조건에 맞는 매물 ID를 추출해서 listingIds 배열에 포함
-- 조건이 불명확하면 추가 질문
 - 반드시 아래 JSON 형식으로만 응답
 
 응답 형식 (반드시 이 JSON만):
 {"message": "응답 텍스트", "listingIds": [숫자, 숫자, ...]}
 
-매물 필터링 기준:
+필터링 기준:
 - 선종: 제트스키, 모터보트, 낚시보트, 요트, RIB
-- 가격: 숫자(만원) 기준
+- 가격: 매물 목록의 price 값(만원)과 사용자 요청 금액을 정확히 비교
 - 지역: 경기, 부산, 제주, 인천, 강원, 전남 등
 - 특징: 모두인증, 모두진단, 홈배송, 영상, 트레일러, 직거래
 - 운항시간: 숫자(h) 기준`;
@@ -77,9 +77,21 @@ export default async function handler(req, res) {
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
-      const ids = Array.isArray(parsed.listingIds)
+      let ids = Array.isArray(parsed.listingIds)
         ? parsed.listingIds.map(Number).filter(Number.isFinite).slice(0, 12)
         : [];
+
+      // 서버 측 가격 조건 검증: "N만원 이하" 파싱 후 초과 매물 제거
+      const priceMaxMatch = cleanMessage.match(/(\d[\d,]*)\s*만원\s*이하/);
+      if (priceMaxMatch && Array.isArray(listings) && ids.length > 0) {
+        const maxPrice = Number(priceMaxMatch[1].replace(/,/g, ''));
+        const listingMap = Object.fromEntries(listings.map(l => [l.id, l.price]));
+        ids = ids.filter(id => {
+          const price = listingMap[id];
+          return price !== undefined && price <= maxPrice;
+        });
+      }
+
       return res.status(200).json({ message: parsed.message || '조건에 맞는 매물을 찾아봤습니다.', listingIds: ids });
     } catch {
       return res.status(200).json({ message: text || '조건에 맞는 매물을 찾아봤습니다.', listingIds: [] });
