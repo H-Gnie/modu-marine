@@ -2194,7 +2194,7 @@ details[open] .notice-summary::after { content: '︿'; }
 .chatbot-wrap {
   position: fixed;
   left: 50%;
-  bottom: 0;
+  bottom: 56px;
   transform: translateX(-50%) translateY(100%);
   width: min(430px, 100vw);
   height: 70vh;
@@ -2932,6 +2932,7 @@ details[open] .notice-summary::after { content: '︿'; }
   /* Chatbot panel: not go behind sidebar */
   .chatbot-wrap {
     left: 260px;
+    bottom: 0;
     transform: translateY(100%);
     width: calc(100vw - 280px);
     max-width: 440px;
