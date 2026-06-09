@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-
 const MAX_MESSAGE_LENGTH = 200;
 
 const SYSTEM_PROMPT = `당신은 '모두의 마린' 수상레저 중고 거래 앱의 매물 추천 전문가입니다.
@@ -35,46 +33,54 @@ export default async function handler(req, res) {
   if (cleanMessage.length > MAX_MESSAGE_LENGTH) {
     return res.status(400).json({ message: `질문은 ${MAX_MESSAGE_LENGTH}자 이내로 입력해 주세요.`, listingIds: [] });
   }
-  if (!process.env.ANTHROPIC_API_KEY) {
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
     return res.status(503).json({ message: 'AI 추천 설정을 준비 중입니다. 검색 필터를 먼저 이용해 주세요.', listingIds: [] });
   }
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const listingSummary = (Array.isArray(listings) ? listings : []).slice(0, 50).map(l => {
     const badges = Array.isArray(l.badges) ? l.badges.join(',') : '';
     return `ID:${l.id} [${l.category}] ${l.title} / ${l.price}만원 / ${l.location} / ${l.hours}h / 배지:${badges}`;
   }).join('\n');
 
-  try {
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 512,
-      system: SYSTEM_PROMPT + '\n\n현재 매물 목록:\n' + listingSummary,
-      messages: [{ role: 'user', content: cleanMessage }],
-    });
+  const fullPrompt = SYSTEM_PROMPT + '\n\n현재 매물 목록:\n' + listingSummary + '\n\n사용자 질문: ' + cleanMessage;
 
-    const text = response.content[0].text.trim();
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: fullPrompt }] }],
+          generationConfig: { maxOutputTokens: 512, temperature: 0.3 },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      console.error('Gemini API error:', response.status, JSON.stringify(errBody));
+      const detail = errBody?.error?.message || errBody?.error?.status || response.status;
+      return res.status(503).json({ message: `Gemini 오류(${detail}) — 잠시 후 다시 시도해 주세요.`, listingIds: [] });
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 
     try {
-      const parsed = JSON.parse(text);
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : text);
       const ids = Array.isArray(parsed.listingIds)
         ? parsed.listingIds.map(Number).filter(Number.isFinite).slice(0, 12)
         : [];
       return res.status(200).json({ message: parsed.message || '조건에 맞는 매물을 찾아봤습니다.', listingIds: ids });
     } catch {
-      // JSON 파싱 실패 시 텍스트만 반환
-      return res.status(200).json({ message: text, listingIds: [] });
+      return res.status(200).json({ message: text || '조건에 맞는 매물을 찾아봤습니다.', listingIds: [] });
     }
   } catch (err) {
-    console.error('Anthropic error:', err);
-    const status = err.status || err.statusCode || 500;
-    if (status === 401) {
-      return res.status(503).json({ message: 'AI 추천 설정을 확인하는 중입니다. 잠시 후 다시 이용해 주세요.', listingIds: [] });
-    }
-    if (status === 402 || status === 429) {
-      return res.status(503).json({ message: 'AI 추천 사용량이 잠시 제한되었습니다. 검색 필터를 먼저 이용해 주세요.', listingIds: [] });
-    }
+    console.error('Gemini fetch error:', err);
     return res.status(500).json({ message: 'AI 추천 연결이 원활하지 않습니다. 잠시 후 다시 시도해 주세요.', listingIds: [] });
   }
 }
