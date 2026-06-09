@@ -2197,7 +2197,7 @@ details[open] .notice-summary::after { content: '︿'; }
   bottom: 56px;
   transform: translateX(-50%) translateY(100%);
   width: min(430px, 100vw);
-  height: min(560px, calc(100dvh - 130px));
+  height: min(540px, calc(100vh - 130px));
   background: var(--white);
   border-radius: 20px 20px 0 0;
   box-shadow: 0 -8px 40px rgba(11,29,46,.18);
@@ -2939,6 +2939,8 @@ details[open] .notice-summary::after { content: '︿'; }
     transform: translateY(100%);
     width: calc(100vw - 280px);
     max-width: 440px;
+    height: calc(100vh - 64px);
+    max-height: 620px;
   }
   .chatbot-wrap.open {
     transform: translateY(0);
