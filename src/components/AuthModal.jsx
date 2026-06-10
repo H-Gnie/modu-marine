@@ -14,7 +14,10 @@ export default function AuthModal({ onClose }) {
     setLoading(true)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
-      options: { redirectTo: window.location.origin }
+      options: {
+        redirectTo: window.location.origin,
+        scopes: 'profile_nickname profile_image',
+      }
     })
     if (error) setError(error.message)
     setLoading(false)
