@@ -79,6 +79,30 @@ export default function App() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  // Kakao OIDC 콜백 처리 (?code=... 파라미터)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    if (!code) return
+
+    window.history.replaceState({}, '', window.location.pathname)
+    const nonce = sessionStorage.getItem('kakao_nonce') || undefined
+    sessionStorage.removeItem('kakao_nonce')
+
+    fetch(`/api/auth/kakao-token?code=${encodeURIComponent(code)}`)
+      .then(r => r.json())
+      .then(async ({ id_token, error }) => {
+        if (error) { console.error('Kakao token error:', error); return }
+        const { error: authError } = await supabase.auth.signInWithIdToken({
+          provider: 'kakao',
+          token: id_token,
+          nonce,
+        })
+        if (authError) console.error('Supabase signIn error:', authError)
+      })
+      .catch(console.error)
+  }, [])
   const [fabVisible, setFabVisible] = useState(
     () => localStorage.getItem(CHAT_FAB_HIDDEN_KEY) !== '1'
   )
