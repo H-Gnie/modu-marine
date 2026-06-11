@@ -90,7 +90,7 @@ export default function App() {
     const nonce = sessionStorage.getItem('kakao_nonce') || undefined
     sessionStorage.removeItem('kakao_nonce')
 
-    fetch(`/api/auth/kakao-token?code=${encodeURIComponent(code)}`)
+    fetch(`/api/kakao-token?code=${encodeURIComponent(code)}`)
       .then(r => r.json())
       .then(async ({ id_token, error }) => {
         if (error) { console.error('Kakao token error:', error); return }
