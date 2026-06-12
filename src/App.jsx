@@ -87,22 +87,23 @@ export default function App() {
     if (!code) return
 
     window.history.replaceState({}, '', window.location.pathname)
-    const nonce = sessionStorage.getItem('kakao_nonce') || undefined
-    sessionStorage.removeItem('kakao_nonce')
 
     fetch(`/api/kakao-token?code=${encodeURIComponent(code)}`)
       .then(r => r.json())
       .then(async ({ id_token, error }) => {
-        if (error) { console.error('Kakao token error:', error); return }
+        if (error) {
+          showToast(`카카오 로그인 실패: ${error}`)
+          return
+        }
         const { error: authError } = await supabase.auth.signInWithIdToken({
           provider: 'kakao',
           token: id_token,
-          nonce,
         })
-        if (authError) console.error('Supabase signIn error:', authError)
+        if (authError) showToast(`로그인 오류: ${authError.message}`)
+        else showToast('카카오 로그인 완료!')
       })
-      .catch(console.error)
-  }, [])
+      .catch(err => showToast(`오류: ${err.message}`))
+  }, [showToast])
   const [fabVisible, setFabVisible] = useState(
     () => localStorage.getItem(CHAT_FAB_HIDDEN_KEY) !== '1'
   )

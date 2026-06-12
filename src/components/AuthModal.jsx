@@ -11,15 +11,11 @@ export default function AuthModal({ onClose }) {
   const [sent, setSent] = useState(false)
 
   function handleKakao() {
-    const nonce = crypto.randomUUID()
-    sessionStorage.setItem('kakao_nonce', nonce)
-
     const url = new URL('https://kauth.kakao.com/oauth/authorize')
     url.searchParams.set('client_id', import.meta.env.VITE_KAKAO_REST_API_KEY)
     url.searchParams.set('redirect_uri', window.location.origin)
     url.searchParams.set('response_type', 'code')
     url.searchParams.set('scope', 'openid profile_nickname profile_image')
-    url.searchParams.set('nonce', nonce)
 
     window.location.href = url.toString()
   }
