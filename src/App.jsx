@@ -80,34 +80,6 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Kakao OIDC 콜백 처리 (?code=... 파라미터)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const code = params.get('code')
-    if (!code) return
-
-    window.history.replaceState({}, '', window.location.pathname)
-
-    fetch(`/api/kakao-token?code=${encodeURIComponent(code)}`)
-      .then(r => r.json())
-      .then(async ({ id_token, error }) => {
-        if (error) {
-          showToast(`카카오 로그인 실패: ${error}`)
-          return
-        }
-        const { data, error: authError } = await supabase.auth.signInWithIdToken({
-          provider: 'kakao',
-          token: id_token,
-        })
-        if (authError) {
-          showToast(`로그인 오류: ${authError.message}`)
-        } else {
-          if (data?.session?.user) setUser(data.session.user)
-          showToast('카카오 로그인 완료!')
-        }
-      })
-      .catch(err => showToast(`오류: ${err.message}`))
-  }, [showToast])
   const [fabVisible, setFabVisible] = useState(
     () => localStorage.getItem(CHAT_FAB_HIDDEN_KEY) !== '1'
   )
@@ -163,6 +135,35 @@ export default function App() {
     setToast({ msg, visible: true })
     setTimeout(() => setToast(t => ({ ...t, visible: false })), 1600)
   }, [])
+
+  // Kakao OIDC 콜백 처리 (?code=... 파라미터)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    if (!code) return
+
+    window.history.replaceState({}, '', window.location.pathname)
+
+    fetch(`/api/kakao-token?code=${encodeURIComponent(code)}`)
+      .then(r => r.json())
+      .then(async ({ id_token, error }) => {
+        if (error) {
+          showToast(`카카오 로그인 실패: ${error}`)
+          return
+        }
+        const { data, error: authError } = await supabase.auth.signInWithIdToken({
+          provider: 'kakao',
+          token: id_token,
+        })
+        if (authError) {
+          showToast(`로그인 오류: ${authError.message}`)
+        } else {
+          if (data?.session?.user) setUser(data.session.user)
+          showToast('카카오 로그인 완료!')
+        }
+      })
+      .catch(err => showToast(`오류: ${err.message}`))
+  }, [showToast])
 
   const openAuth = useCallback(() => setAuthOpen(true), [])
   const closeAuth = useCallback(() => setAuthOpen(false), [])
