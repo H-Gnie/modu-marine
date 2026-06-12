@@ -1,7 +1,10 @@
 # Claude Handoff: 모두의 마린
 
-이 프로젝트는 `/home/hj/modu-marine`에 있는 별도 프로젝트입니다.
-절대 `/home/hj/kis-autotrader` 자동매매 프로젝트와 섞지 마세요.
+이 프로젝트는 `d:\1. Work w AI\modu-marine`에 있는 별도 프로젝트입니다.
+자동매매 프로젝트(autotrader)와 절대 섞지 마세요.
+
+**새 세션은 먼저 `docs/NEXT_TASKS.md`를 읽으세요.** 현재 상태, 주의사항(카카오 로그인 구조,
+배포 시 함정), 작업 티켓이 모두 거기 있습니다.
 
 ## 프로젝트 목표
 
@@ -22,64 +25,40 @@
 - 내차고 -> 내마린고
 - 전체서비스 -> 전체서비스
 
-## 현재 구현 상태
+## 현재 구현 상태 (2026-06 기준)
 
-현재는 Node/npm 없이 동작하는 정적 웹앱입니다.
+React 19 + Vite 8 SPA. Supabase(DB/Auth/Storage) + Vercel(호스팅/서버리스) 연동 완료.
 
-파일:
+- 배포: main push → Vercel 자동 배포 → https://modu-marine.vercel.app
+- 구조: `src/` (App.jsx, views/, components/, hooks/, lib/supabase.js), `api/` (Vercel 서버리스), `styles.css`
+- 로그인: 이메일 + 카카오 (카카오는 커스텀 OIDC — `docs/NEXT_TASKS.md` 주의사항 필독)
+- DB: `docs/supabase_schema.sql` 적용됨 (profiles/listings/wishlists/inquiries + RLS)
+- 매물 등록: 로그인 → 내마린팔기 → listings 저장 + Storage 이미지 업로드 동작
+- AI 챗봇: `api/chat.js`, Groq llama-3.1-8b-instant (환경변수 이름은 `GEMINI_API_KEY`지만 Groq 키)
+- 더미 매물 30개 + 실매물 병합 표시
 
-- `index.html`: 앱 shell, 상단바, 하단 탭
-- `styles.css`: 모바일 앱 스타일
-- `app.js`: 더미 데이터, 라우팅, 화면 렌더링, 상태 관리
-- `README.md`: 실행 방법
-
-실행:
+## 실행
 
 ```bash
-cd /home/hj/modu-marine
-python3 -m http.server 4173
+cd "d:/1. Work w AI/modu-marine"
+npm run dev      # http://localhost:5173 — 단, api/는 Vercel 전용이라 로컬에서 안 뜸
+npm run build    # push 전 필수
 ```
-
-브라우저:
-
-```text
-http://127.0.0.1:4173
-```
-
-현재 기능:
-
-- 홈
-- 검색/필터
-- 매물 상세
-- 내마린팔기 Self/Pro 7단계 mock 플로우
-- 내마린고
-- 전체서비스
-- 찜, 비교함, 최근 본 매물, 판매 등록 localStorage 저장
-- 더미 매물 30개
-- 딜러·마리나 센터 mock 대시보드
 
 ## 현재 한계
 
-- 실제 DB 없음
-- 로그인 없음
-- 사진 업로드는 브라우저 mock이며 서버 저장 없음
-- 이미지가 외부 Unsplash URL에 의존함
-- JS/CSS가 단일 파일 중심이라 커질수록 유지보수가 어려움
-- 실제 결제/문의/예약/알림 연동 없음
+- 문의/예약/결제는 아직 mock (토스트만) — `docs/NEXT_TASKS.md`의 MM-101, MM-104
+- 찜/판매등록 localStorage 의존 — 계정 동기화는 MM-102
+- 더미 매물 이미지가 외부 Unsplash URL 의존
+- 번들 503KB (코드 스플리팅 필요)
 
 ## 디자인 방향
-
-사용자는 현재 결과물이 너무 못생겼다고 피드백했습니다.
-다음 작업은 기능 추가보다 UI 품질을 우선해야 합니다.
-
-원칙:
 
 - 랜딩페이지처럼 만들지 말고, 첫 화면이 바로 실제 거래 앱 홈이어야 합니다.
 - KB차차차처럼 섹션이 많고 정보 밀도는 높게 유지합니다.
 - 단, 여백/카드/배지/가격/사진 위계를 정교하게 다듬습니다.
 - 매물 카드는 실제 사진, 가격, 핵심 제원, 신뢰 배지가 한눈에 보여야 합니다.
-- 홈은 `검색`, `모두스타픽`, `인증/진단/홈배송`, `영상`, `테마픽`, `예산`, `팔기` 진입이 자연스러워야 합니다.
-- 하단 탭은 실제 앱처럼 고정합니다.
+- 하단 탭(모바일)/사이드바(PC)는 실제 앱처럼 고정합니다.
 - 수상레저 특성상 해양 느낌은 주되 과한 파도/장식은 피합니다.
 - 색은 프리미엄 중고 거래 앱 느낌: 흰색, 짙은 네이비, 선명한 블루, 오렌지 포인트, 중립 회색.
 
@@ -100,19 +79,22 @@ http://127.0.0.1:4173
 
 ## 절대 하지 말 것
 
-- `/home/hj/kis-autotrader` 파일 수정 금지
+- 카카오 로그인을 `signInWithOAuth({ provider: 'kakao' })`로 되돌리기 금지 (KOE205 재발)
+- `App.jsx`에서 useCallback 헬퍼 선언보다 위의 useEffect deps에 그 헬퍼 넣기 금지 (흰 화면 크래시)
+- `api/` 아래 서브디렉토리에 서버리스 함수 만들기 금지 (Vercel 404)
+- `SUPABASE_SERVICE_ROLE_KEY`를 프론트 코드(`src/`)에서 사용 금지
 - KB차차차 로고, 브랜드 컬러, 고유 문구 그대로 사용 금지
 - 앱을 마케팅 랜딩페이지처럼 변경 금지
-- 현재 별도 프로젝트 구조를 자동매매 프로젝트 안으로 옮기기 금지
-- UI 개선 없이 기능만 늘리기 금지
+- 다른 프로젝트(autotrader) 파일 수정 금지
 
 ## 우선순위
 
-1. UI 품질 개선
-2. 판매자 매물 등록 플로우 현실화
-3. 매물 상세 정보 강화
-4. localStorage 저장
-5. 더미 데이터 확대
-6. React/Vite 또는 Next.js 전환 여부 검토
+`docs/NEXT_TASKS.md`의 티켓 순서를 따르세요:
 
-자세한 작업 티켓은 `docs/TASKS_FOR_CLAUDE.md`를 따르세요.
+1. MM-101 문의하기 실제 동작 + Resend 이메일 알림
+2. MM-102 찜 목록 계정 동기화
+3. MM-103 챗봇 입력창 가시성 검증
+4. MM-104 토스페이먼츠 결제
+5. MM-105 기술 부채 (코드 스플리팅, 환경변수 정리)
+
+과거 완료 티켓 기록은 `docs/TASKS_FOR_CLAUDE.md` 참조.
