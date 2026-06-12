@@ -3032,12 +3032,25 @@ details[open] .notice-summary::after { content: '︿'; }
 }
 
 .auth-form { display: flex; flex-direction: column; gap: 10px; }
-.auth-form input {
+.auth-form input,
+.auth-form select,
+.auth-form textarea {
   width: 100%; padding: 12px 14px;
   border: 1.5px solid #e5e7eb; border-radius: 10px;
   font-size: 14px; outline: none; box-sizing: border-box;
+  font-family: inherit; background: #fff; color: inherit;
 }
-.auth-form input:focus { border-color: var(--blue); }
+.auth-form input:focus,
+.auth-form select:focus,
+.auth-form textarea:focus { border-color: var(--blue); }
+.auth-form textarea { resize: vertical; min-height: 90px; }
+
+.inquiry-title { margin: 0 0 4px; font-size: 19px; font-weight: 700; }
+.inquiry-listing {
+  margin: 0 0 16px; font-size: 13.5px; color: #666;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.inquiry-notice { margin: 14px 0 0; font-size: 11.5px; color: #999; text-align: center; }
 
 .auth-error { color: #e53935; font-size: 12.5px; margin: 0; }
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { listings } from '../data.js'
 import { won, gradeOf, getPhotos } from '../utils.js'
 import Card from '../components/Card.jsx'
+import InquiryModal from '../components/InquiryModal.jsx'
 
 function badgeHtml(item) {
   return item.badges.slice(0, 3).map(b => (
@@ -10,10 +11,11 @@ function badgeHtml(item) {
 }
 
 export default function Detail({
-  listing, wished, compared, toggleWish, toggleCompare, viewDetail, showToast
+  listing, wished, compared, toggleWish, toggleCompare, viewDetail, showToast, user
 }) {
   const item = listing || listings[0]
   const [imgIdx, setImgIdx] = useState(0)
+  const [inquiryOpen, setInquiryOpen] = useState(false)
   const photos = getPhotos(item)
   const grade = gradeOf(item.score)
   const gradeCls = grade.replace('+', 'p')
@@ -174,7 +176,7 @@ export default function Detail({
         <button
           className="sticky-btn primary"
           style={{gridColumn:'span 2'}}
-          onClick={() => showToast('문의가 접수되었습니다')}
+          onClick={() => setInquiryOpen(true)}
         >
           문의하기
         </button>
@@ -191,6 +193,10 @@ export default function Detail({
           방문예약
         </button>
       </div>
+
+      {inquiryOpen && (
+        <InquiryModal item={item} user={user} onClose={() => setInquiryOpen(false)} showToast={showToast} />
+      )}
     </>
   )
 }
