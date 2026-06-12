@@ -95,12 +95,16 @@ export default function App() {
           showToast(`카카오 로그인 실패: ${error}`)
           return
         }
-        const { error: authError } = await supabase.auth.signInWithIdToken({
+        const { data, error: authError } = await supabase.auth.signInWithIdToken({
           provider: 'kakao',
           token: id_token,
         })
-        if (authError) showToast(`로그인 오류: ${authError.message}`)
-        else showToast('카카오 로그인 완료!')
+        if (authError) {
+          showToast(`로그인 오류: ${authError.message}`)
+        } else {
+          if (data?.session?.user) setUser(data.session.user)
+          showToast('카카오 로그인 완료!')
+        }
       })
       .catch(err => showToast(`오류: ${err.message}`))
   }, [showToast])
