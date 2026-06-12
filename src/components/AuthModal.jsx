@@ -12,7 +12,7 @@ export default function AuthModal({ onClose }) {
 
   function handleKakao() {
     const url = new URL('https://kauth.kakao.com/oauth/authorize')
-    url.searchParams.set('client_id', import.meta.env.VITE_KAKAO_REST_API_KEY)
+    url.searchParams.set('client_id', '3393bf946994c6ec91a6ff143f31e473')
     url.searchParams.set('redirect_uri', window.location.origin)
     url.searchParams.set('response_type', 'code')
     url.searchParams.set('scope', 'openid profile_nickname profile_image')
