@@ -2196,6 +2196,7 @@ details[open] .notice-summary::after { content: '︿'; }
   left: 50%;
   bottom: 56px;
   height: calc(100vh - 120px);
+  height: calc(100dvh - 120px); /* dvh: 모바일 주소창 유무에 맞춰 자동 조절 */
   max-height: 560px;
   transform: translateX(-50%) translateY(100%);
   width: min(430px, 100vw);
@@ -2933,15 +2934,16 @@ details[open] .notice-summary::after { content: '︿'; }
     transform: translateY(calc(100% + 4px));
   }
 
-  /* Chatbot panel: not go behind sidebar */
+  /* Chatbot panel: 사이드바 옆 + 컴팩트한 높이(전체 화면 점유 방지) */
   .chatbot-wrap {
     left: 260px;
-    bottom: 0;
-    height: calc(100vh - 64px);
+    bottom: 24px;
+    height: min(600px, calc(100dvh - 140px));
     max-height: none;
-    transform: translateY(100%);
+    transform: translateY(calc(100% + 24px));
     width: calc(100vw - 280px);
     max-width: 440px;
+    border-radius: 20px;
   }
   .chatbot-wrap.open {
     transform: translateY(0);
