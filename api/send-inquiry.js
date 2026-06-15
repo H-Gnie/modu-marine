@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'missing fields' })
   }
 
-  const apiKey = process.env.RESEND_API_KEY
+  const apiKey = process.env.RESEND_API_KEY || process.env.Resend_API
   if (!apiKey) {
     // 키 미설정 시 이메일만 생략 — 문의 접수 플로우는 막지 않는다
     return res.status(200).json({ skipped: true })
