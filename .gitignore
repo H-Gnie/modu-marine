@@ -2,5 +2,7 @@ node_modules/
 dist/
 .vite/
 *.local
+.claude/
+제트스키/
 
 .vercel

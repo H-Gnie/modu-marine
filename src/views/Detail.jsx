@@ -3,6 +3,7 @@ import { listings } from '../data.js'
 import { won, gradeOf, getPhotos } from '../utils.js'
 import Card from '../components/Card.jsx'
 import InquiryModal from '../components/InquiryModal.jsx'
+import { startPayment } from '../lib/payments.js'
 
 function badgeHtml(item) {
   return item.badges.slice(0, 3).map(b => (
@@ -188,7 +189,17 @@ export default function Detail({
         </button>
         <button
           className="sticky-btn orange"
-          onClick={() => showToast('방문 예약 화면은 준비 중입니다')}
+          onClick={async () => {
+            try {
+              await startPayment({
+                productKey: 'reservation',
+                listingId: item.id,
+                customerName: user?.user_metadata?.name || user?.user_metadata?.nickname,
+              })
+            } catch (e) {
+              showToast(e.message || '결제를 시작할 수 없습니다')
+            }
+          }}
         >
           방문예약
         </button>

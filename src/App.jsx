@@ -165,6 +165,33 @@ export default function App() {
       .catch(err => showToast(`오류: ${err.message}`))
   }, [showToast])
 
+  // 토스 결제 콜백 처리 (?payment=success|fail)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const payment = params.get('payment')
+    if (!payment) return
+
+    const paymentKey = params.get('paymentKey')
+    const orderId = params.get('orderId')
+    const amount = params.get('amount')
+    window.history.replaceState({}, '', window.location.pathname)
+
+    if (payment === 'fail') { showToast('결제가 취소되었습니다'); return }
+    if (payment !== 'success' || !paymentKey || !orderId || !amount) return
+
+    fetch('/api/confirm-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paymentKey, orderId, amount, userId: user?.id ?? null }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) showToast(`결제 완료: ${d.orderName} ${Number(d.amount).toLocaleString()}원`)
+        else showToast(`결제 오류: ${d.error || '승인 실패'}`)
+      })
+      .catch(err => showToast(`결제 오류: ${err.message}`))
+  }, [showToast, user])
+
   const openAuth = useCallback(() => setAuthOpen(true), [])
   const closeAuth = useCallback(() => setAuthOpen(false), [])
 
