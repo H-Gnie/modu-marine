@@ -42,7 +42,7 @@ function loadSet(key) {
 
 export default function App() {
   const isMobile = useIsMobile()
-  const { listings: allListings, refresh: refreshListings } = useListings()
+  const { listings: allListings, dbListings, refresh: refreshListings } = useListings()
   const [tab, setTabState] = useState('home')
   const [user, setUser] = useState(null)
   const [authOpen, setAuthOpen] = useState(false)
@@ -187,20 +187,62 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [allListings])
 
+  // 실매물(DB 등록)만 wishlists 테이블에 동기화. 더미 매물은 FK 위반이라 localStorage만.
+  const isRealListing = useCallback(
+    (numId) => dbListings.some(x => x.id === numId && x.sellerId),
+    [dbListings]
+  )
+
   const toggleWish = useCallback((id) => {
     const numId = Number(id)
+    const adding = !wished.has(numId)
+
     setWished(prev => {
       const next = new Set(prev)
-      if (next.has(numId)) {
-        next.delete(numId)
-        showToast('찜을 해제했습니다')
-      } else {
-        next.add(numId)
-        showToast('찜했습니다')
-      }
+      if (next.has(numId)) next.delete(numId)
+      else next.add(numId)
       return next
     })
-  }, [showToast])
+    showToast(adding ? '찜했습니다' : '찜을 해제했습니다')
+
+    if (user && isRealListing(numId)) {
+      if (adding) {
+        supabase.from('wishlists')
+          .upsert({ user_id: user.id, listing_id: numId }, { onConflict: 'user_id,listing_id', ignoreDuplicates: true })
+          .then(({ error }) => { if (error) console.error('찜 저장 오류:', error) })
+      } else {
+        supabase.from('wishlists')
+          .delete()
+          .match({ user_id: user.id, listing_id: numId })
+          .then(({ error }) => { if (error) console.error('찜 삭제 오류:', error) })
+      }
+    }
+  }, [wished, showToast, user, isRealListing])
+
+  // 로그인 시 서버 찜을 불러와 localStorage 찜과 병합. 로컬 전용 실매물 찜은 서버로 올린다.
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    ;(async () => {
+      const { data, error } = await supabase
+        .from('wishlists')
+        .select('listing_id')
+        .eq('user_id', user.id)
+      if (error || cancelled || !data) return
+      const serverIds = data.map(r => Number(r.listing_id))
+      setWished(prev => {
+        const toUpload = [...prev].filter(id => !serverIds.includes(id) && isRealListing(id))
+        if (toUpload.length > 0) {
+          supabase.from('wishlists')
+            .upsert(toUpload.map(listing_id => ({ user_id: user.id, listing_id })),
+              { onConflict: 'user_id,listing_id', ignoreDuplicates: true })
+            .then(({ error: upErr }) => { if (upErr) console.error('찜 동기화 오류:', upErr) })
+        }
+        return new Set([...prev, ...serverIds])
+      })
+    })()
+    return () => { cancelled = true }
+  }, [user, isRealListing])
 
   const toggleCompare = useCallback((id) => {
     const numId = Number(id)

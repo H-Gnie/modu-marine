@@ -4,10 +4,12 @@ import Card from '../components/Card.jsx'
 
 export default function Garage({
   wished, compared, recent, sellRequests,
-  toggleWish, toggleCompare, viewDetail
+  toggleWish, toggleCompare, viewDetail, listings
 }) {
-  const wishedItems = [...wished].map(byId).filter(Boolean)
-  const recentItems = recent.map(byId).filter(Boolean)
+  // 실매물(DB)은 listings prop에서, 더미는 byId에서 조회
+  const resolve = id => listings?.find(x => x.id === Number(id)) || byId(id)
+  const wishedItems = [...wished].map(resolve).filter(Boolean)
+  const recentItems = recent.map(resolve).filter(Boolean)
 
   return (
     <>
