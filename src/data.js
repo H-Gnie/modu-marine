@@ -1,4 +1,8 @@
-export const listings = [
+// 더미 매물 id는 실매물(Supabase bigserial: 1,2,3...)과 겹치지 않도록 큰 오프셋을 준다.
+// 충돌 시 찜 동기화/상세보기가 엉뚱한 매물을 가리키므로 반드시 분리.
+export const DUMMY_ID_OFFSET = 900000
+
+const RAW_LISTINGS = [
   {id:1,title:'야마하 VX 크루저 HO 2022',category:'제트스키',brand:'Yamaha',model:'VX Cruiser HO',year:2022,price:2380,location:'경기 화성',marina:'전곡항',hours:68,length:'3.37m',engine:'제트 180마력',seller:'실소유 인증딜러',badges:['모두인증','모두진단','홈배송'],video:true,trailer:true,created:'2026-05-18',score:99,image:'https://images.unsplash.com/photo-1505867798796-639ec7e8cdf5?auto=format&fit=crop&w=900&q=80',market:'AI시세 2,480만원 · 4% 낮음',inspection:{선체:'A',엔진:'A',전장:'B+',추진계:'A',부식:'양호',시운전:'완료'},desc:'입문자와 가족 레저에 맞는 관리 상태 좋은 제트스키입니다.'},
   {id:2,title:'씨레이 210 SPX 데이보트',category:'모터보트',brand:'Sea Ray',model:'210 SPX',year:2020,price:6450,location:'부산 수영',marina:'수영만 요트경기장',hours:152,length:'6.55m',engine:'인보드 250마력',seller:'제휴 마리나',badges:['모두인증','영상'],video:true,trailer:false,created:'2026-05-17',score:96,image:'https://images.unsplash.com/photo-1593351415075-3bac9f45c877?auto=format&fit=crop&w=900&q=80',market:'AI시세 6,420만원 · 적정',inspection:{선체:'A',엔진:'B+',전장:'A',추진계:'B+',부식:'경미',시운전:'완료'},desc:'가족용 데이보트로 적합하며 실내 보관 비중이 높습니다.'},
   {id:3,title:'퀵실버 605 필하우스 낚시보트',category:'낚시보트',brand:'Quicksilver',model:'605 Pilothouse',year:2019,price:4980,location:'충남 태안',marina:'안흥항',hours:214,length:'5.75m',engine:'아웃보드 150마력',seller:'실소유 개인',badges:['직거래','트레일러'],video:false,trailer:true,created:'2026-05-16',score:88,image:'https://images.unsplash.com/photo-1551131618-3f0a5cf594b4?auto=format&fit=crop&w=900&q=80',market:'AI시세 5,100만원 · 2% 낮음',inspection:{선체:'B+',엔진:'B+',전장:'B',추진계:'A',부식:'양호',시운전:'예약 가능'},desc:'낚시 장비와 트레일러 포함 매물입니다.'},
@@ -31,6 +35,8 @@ export const listings = [
   {id:30,title:'스릴 시커 RIB 850',category:'RIB',brand:'Thrill Seeker',model:'RIB 850',year:2021,price:7200,location:'부산 기장',marina:'기장 마리나',hours:108,length:'8.50m',engine:'아웃보드 350마력 쌍엔진',seller:'제휴 마리나',badges:['모두인증','모두진단','홈배송'],video:false,trailer:false,created:'2026-04-19',score:94,image:'https://images.unsplash.com/photo-1601210596001-ae2676f7ef6b?auto=format&fit=crop&w=900&q=80',market:'AI시세 7,600만원 · 5% 낮음',inspection:{선체:'A',엔진:'A',전장:'A',추진계:'A',부식:'양호',시운전:'완료'},desc:'고속 대형 RIB, 해양레포츠 센터 운영용.'}
 ];
 
+export const listings = RAW_LISTINGS.map(l => ({ ...l, id: l.id + DUMMY_ID_OFFSET }));
+
 export const DEALER = {
   name: '왕산마리나',
   region: '인천 중구',
@@ -41,10 +47,10 @@ export const DEALER = {
   image: 'https://images.unsplash.com/photo-1520621853326-9c6d0cb72b78?auto=format&fit=crop&w=900&q=80',
   stats: { listed: 8, monthlyInquiries: 24, settlementPending: 340, completedDeals: 112 },
   myListings: [
-    { id: 6,  status: '문의중',   inquiries: 3, views: 142 },
-    { id: 2,  status: '상담예약', inquiries: 5, views: 287 },
-    { id: 7,  status: '게시중',   inquiries: 1, views: 89  },
-    { id: 10, status: '거래완료', inquiries: 0, views: 310 },
+    { id: 6  + DUMMY_ID_OFFSET, status: '문의중',   inquiries: 3, views: 142 },
+    { id: 2  + DUMMY_ID_OFFSET, status: '상담예약', inquiries: 5, views: 287 },
+    { id: 7  + DUMMY_ID_OFFSET, status: '게시중',   inquiries: 1, views: 89  },
+    { id: 10 + DUMMY_ID_OFFSET, status: '거래완료', inquiries: 0, views: 310 },
   ],
   inquiries: [
     { item: '야마하 AR195 웨이크 스포츠', type: '방문예약 요청', time: '30분 전',  read: false },
