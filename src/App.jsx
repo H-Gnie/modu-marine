@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { listings, PHOTO_SLOTS } from './data.js'
 import { freshSellData } from './state.js'
 import { byId, won, gradeOf, getPhotos } from './utils.js'
@@ -68,6 +68,29 @@ export default function App() {
   })
   const [toast, setToast] = useState({ msg: '', visible: false })
   const [chatOpen, setChatOpen] = useState(false)
+
+  // 현재 화면을 ref로 추적 (popstate 핸들러가 최신 값을 읽도록)
+  const tabRef = useRef(tab)
+  const listingRef = useRef(listing)
+  useEffect(() => { tabRef.current = tab; listingRef.current = listing }, [tab, listing])
+
+  // 시스템 뒤로가기(안드로이드 제스처/버튼)를 앱 내 뒤로가기로 연결
+  useEffect(() => {
+    window.history.pushState({ app: true }, '')
+    const onPop = () => {
+      const onHome = tabRef.current === 'home' && !listingRef.current
+      if (onHome) return // 홈에서 한 번 더 뒤로가면 앱 종료
+      // 앱 내 뒤로가기
+      if (tabRef.current === 'detail') setTabState('search')
+      else if (tabRef.current === 'dealer') setTabState('more')
+      else setTabState('home')
+      setListing(null)
+      window.scrollTo(0, 0)
+      window.history.pushState({ app: true }, '') // 다음 뒤로가기를 위해 재무장
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   // Supabase Auth 세션 감지
   useEffect(() => {
