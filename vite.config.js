@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
+      // 개발 중 캐시 번거로움 회피: 배포된 서비스워커가 스스로 등록 해제 + 캐시 정리.
+      // 나중에 PWA를 다시 쓰려면 이 한 줄만 제거(또는 false)하면 됨.
+      selfDestroying: true,
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'apple-touch-icon.png'],
       manifest: {
