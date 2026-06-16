@@ -2243,7 +2243,8 @@ details[open] .notice-summary::after { content: '︿'; }
   height: calc(100vh - 120px);
   height: calc(100dvh - 120px); /* dvh: 모바일 주소창 유무에 맞춰 자동 조절 */
   max-height: 560px;
-  transform: translateX(-50%) translateY(100%);
+  /* 닫힘: 패널 높이 + 하단 오프셋(56px) + safe-area까지 완전히 화면 밖으로 */
+  transform: translateX(-50%) translateY(calc(100% + 56px + env(safe-area-inset-bottom)));
   width: min(430px, 100vw);
   background: var(--white);
   border-radius: 20px 20px 0 0;
