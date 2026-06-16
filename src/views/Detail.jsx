@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { listings } from '../data.js'
 import { won, gradeOf, getPhotos } from '../utils.js'
+import { supabase } from '../lib/supabase.js'
 import Card from '../components/Card.jsx'
 import InquiryModal from '../components/InquiryModal.jsx'
 import { startPayment } from '../lib/payments.js'
@@ -12,12 +13,27 @@ function badgeHtml(item) {
 }
 
 export default function Detail({
-  listing, wished, compared, toggleWish, toggleCompare, viewDetail, showToast, user
+  listing, wished, compared, toggleWish, toggleCompare, viewDetail, showToast, user, openAuth
 }) {
   const item = listing || listings[0]
   const [imgIdx, setImgIdx] = useState(0)
   const [inquiryOpen, setInquiryOpen] = useState(false)
+  const [sellerProfile, setSellerProfile] = useState(null)
   const photos = getPhotos(item)
+
+  // 실매물(회원 등록)이면 판매자 공개 프로필을 불러온다
+  useEffect(() => {
+    setSellerProfile(null)
+    if (!item.sellerId) return
+    let cancelled = false
+    supabase
+      .from('profiles')
+      .select('nickname, avatar_url, role, created_at')
+      .eq('id', item.sellerId)
+      .single()
+      .then(({ data }) => { if (!cancelled) setSellerProfile(data) })
+    return () => { cancelled = true }
+  }, [item.sellerId])
   const grade = gradeOf(item.score)
   const gradeCls = grade.replace('+', 'p')
   const isWished = wished.has(item.id)
@@ -85,16 +101,25 @@ export default function Detail({
             <h2>모두진단 리포트</h2>
             <button className="badge-info-btn" onClick={() => showToast('모두 진단은 점검일 현재 확인 가능한 범위의 거래 참고용 리포트입니다. 법정 선박검사를 대체하지 않습니다.')}>ⓘ 기준 안내</button>
           </div>
-          <div className="report">
-            {Object.entries(item.inspection).map(([k, v]) => {
-              const good = ['A', 'A+', 'S', '완료', '양호', '매우 양호', '예약 가능'].includes(v)
-              return (
-                <div key={k}>
-                  <strong>{k}</strong>
-                  <span className={good ? 'rep-good' : 'rep-warn'}>{v}</span>
-                </div>
-              )
-            })}
+          <div className="report-lockwrap">
+            <div className={`report${user ? '' : ' locked'}`}>
+              {Object.entries(item.inspection).map(([k, v]) => {
+                const good = ['A', 'A+', 'S', '완료', '양호', '매우 양호', '예약 가능'].includes(v)
+                return (
+                  <div key={k}>
+                    <strong>{k}</strong>
+                    <span className={good ? 'rep-good' : 'rep-warn'}>{v}</span>
+                  </div>
+                )
+              })}
+            </div>
+            {!user && (
+              <div className="report-lock-cta">
+                <div className="lock-icon">🔒</div>
+                <p>선체·엔진·전장·추진계 <strong>상세 진단 등급</strong>은<br/>회원에게만 공개됩니다</p>
+                <button className="lock-btn" onClick={openAuth}>회원가입하고 전체 리포트 보기</button>
+              </div>
+            )}
           </div>
           <p className="diagnosis-notice">모두 진단은 점검일 현재 확인 가능한 범위에서 작성된 거래 참고용 리포트입니다. 비분해 육안 점검·작동 확인 방식이며, 수중부·내부 부품·잠재 하자·점검 이후 발생한 상태 변화까지 보증하지 않습니다. 법정 선박검사, 선급검사, 제조사 보증을 대체하지 않습니다.</p>
         </section>
@@ -148,16 +173,33 @@ export default function Detail({
             <div className="extra-cost"><span>선박 보험료</span><strong>차량가액의 약 1~2% (연)</strong></div>
             <div className="extra-cost"><span>선박 검사비</span><strong>5~20만원 (유효 시 해당 없음)</strong></div>
           </div>
+          {user ? (
+            <div className="member-benefit on">✓ 회원 혜택 적용 중 — 제휴 선박 검사 <strong>10% 할인</strong>, 계류비 견적 무료</div>
+          ) : (
+            <button className="member-benefit cta" onClick={openAuth}>
+              🎁 회원가입 시 <strong>선박 검사비 10% 할인</strong> + 맞춤 비용 견적 제공 →
+            </button>
+          )}
         </section>
 
         <section className="section">
           <div className="section-head"><h2>판매자 정보</h2></div>
           <div className="seller-box">
-            <div className="seller-info">
-              <div className="seller-name">{item.seller}</div>
-              <div className="seller-sub">{item.location} · {item.marina}</div>
+            <div className="seller-avatar">
+              {sellerProfile?.avatar_url
+                ? <img src={sellerProfile.avatar_url} alt="" />
+                : <span>{(sellerProfile?.nickname || item.seller || '판')[0]}</span>}
             </div>
-            <button className="mini-btn" onClick={() => showToast('판매자 프로필은 준비 중입니다')}>프로필 보기</button>
+            <div className="seller-info">
+              <div className="seller-name">
+                {sellerProfile?.nickname || item.seller}
+                {item.sellerId && <span className="seller-verified">✓ 인증 회원</span>}
+              </div>
+              <div className="seller-sub">
+                {item.location} · {item.marina}
+                {sellerProfile?.created_at && ` · 가입 ${sellerProfile.created_at.slice(0, 7).replace('-', '.')}`}
+              </div>
+            </div>
           </div>
           <div className="notice" style={{marginTop:'12px'}}>실소유자, 선박 등록 정보, 계류/인도 장소를 반드시 확인하세요. 앱 밖 계약금 송금이나 제3자 명의 거래는 권장하지 않습니다.</div>
         </section>

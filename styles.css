@@ -1806,8 +1806,51 @@ a { color: inherit; text-decoration: none; }
   padding: 14px 16px;
   box-shadow: var(--shadow-xs);
 }
-.seller-name { font-size: 15px; font-weight: 860; color: var(--navy); margin-bottom: 3px; }
+.seller-box { gap: 12px; justify-content: flex-start; }
+.seller-name { font-size: 15px; font-weight: 860; color: var(--navy); margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
 .seller-sub { font-size: 12px; color: var(--muted); }
+.seller-avatar {
+  width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--blue), var(--navy));
+  color: #fff; font-weight: 800; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.seller-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.seller-verified {
+  font-size: 11px; font-weight: 800; color: #1a8f4c;
+  background: #e6f6ec; padding: 2px 7px; border-radius: 999px; letter-spacing: -.02em;
+}
+
+/* 모두진단 리포트 로그인 게이팅 */
+.report-lockwrap { position: relative; }
+.report.locked { filter: blur(6px); pointer-events: none; user-select: none; }
+.report-lock-cta {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; text-align: center; padding: 12px;
+  background: rgba(255,255,255,.55);
+}
+.report-lock-cta .lock-icon { font-size: 24px; }
+.report-lock-cta p { margin: 0; font-size: 12.5px; color: var(--sub); line-height: 1.5; font-weight: 600; }
+.report-lock-cta .lock-btn {
+  margin-top: 4px; border: 0; cursor: pointer;
+  background: var(--navy); color: #fff; font-weight: 800; font-size: 13px;
+  padding: 10px 18px; border-radius: 999px; box-shadow: 0 6px 18px rgba(11,29,46,.22);
+}
+
+/* 예상 추가 비용 — 회원 혜택 */
+.member-benefit {
+  display: block; width: 100%; text-align: left; margin-top: 10px;
+  font-size: 12.5px; font-weight: 700; line-height: 1.45;
+  padding: 11px 14px; border-radius: var(--r-md); border: 0;
+}
+.member-benefit strong { font-weight: 900; }
+.member-benefit.on { background: #e6f6ec; color: #1a7f44; }
+.member-benefit.cta {
+  background: #fff4e6; color: #c2410c; cursor: pointer;
+  border: 1px dashed #f5b97f;
+}
+.member-benefit.cta:hover { background: #ffedd9; }
 
 /* ── Sticky CTA (detail) ─────────────────────── */
 .sticky-cta {
