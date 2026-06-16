@@ -72,7 +72,15 @@ export default function App() {
   // 현재 화면을 ref로 추적 (popstate 핸들러가 최신 값을 읽도록)
   const tabRef = useRef(tab)
   const listingRef = useRef(listing)
+  const originTabRef = useRef('home') // 상세로 들어오기 직전 화면 (뒤로가기 목적지)
   useEffect(() => { tabRef.current = tab; listingRef.current = listing }, [tab, listing])
+
+  // 상세에서 뒤로가기 시 돌아갈 화면 결정
+  const backTargetFor = (curTab) => {
+    if (curTab === 'detail') return originTabRef.current
+    if (curTab === 'dealer') return 'more'
+    return 'home'
+  }
 
   // 시스템 뒤로가기(안드로이드 제스처/버튼)를 앱 내 뒤로가기로 연결
   useEffect(() => {
@@ -80,10 +88,7 @@ export default function App() {
     const onPop = () => {
       const onHome = tabRef.current === 'home' && !listingRef.current
       if (onHome) return // 홈에서 한 번 더 뒤로가면 앱 종료
-      // 앱 내 뒤로가기
-      if (tabRef.current === 'detail') setTabState('search')
-      else if (tabRef.current === 'dealer') setTabState('more')
-      else setTabState('home')
+      setTabState(backTargetFor(tabRef.current))
       setListing(null)
       window.scrollTo(0, 0)
       window.history.pushState({ app: true }, '') // 다음 뒤로가기를 위해 재무장
@@ -231,6 +236,8 @@ export default function App() {
 
   const viewDetail = useCallback((id) => {
     const item = allListings.find(x => x.id === Number(id)) || byId(id)
+    // 상세→상세(비슷한 매물) 이동이 아니면, 들어오기 직전 화면을 기록
+    if (tabRef.current !== 'detail') originTabRef.current = tabRef.current
     setListing(item)
     setTabState('detail')
     setRecent(prev => [Number(id), ...prev.filter(x => x !== Number(id))].slice(0, 8))
@@ -408,9 +415,9 @@ export default function App() {
   }, [user, sellMode, showToast, openAuth, setTab])
 
   const handleBack = useCallback(() => {
-    if (tab === 'detail') { setTabState('search'); window.scrollTo(0, 0) }
-    else if (tab === 'dealer') { setTabState('more'); window.scrollTo(0, 0) }
-    else { setTabState('home'); window.scrollTo(0, 0) }
+    setTabState(backTargetFor(tab))
+    setListing(null)
+    window.scrollTo(0, 0)
   }, [tab])
 
   const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare', 'marinas'].includes(tab)
