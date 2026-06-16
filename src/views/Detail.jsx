@@ -4,7 +4,6 @@ import { won, gradeOf, getPhotos } from '../utils.js'
 import { supabase } from '../lib/supabase.js'
 import Card from '../components/Card.jsx'
 import InquiryModal from '../components/InquiryModal.jsx'
-import { startPayment } from '../lib/payments.js'
 
 function badgeHtml(item) {
   return item.badges.slice(0, 3).map(b => (
@@ -18,6 +17,8 @@ export default function Detail({
   const item = listing || listings[0]
   const [imgIdx, setImgIdx] = useState(0)
   const [inquiryOpen, setInquiryOpen] = useState(false)
+  const [modalType, setModalType] = useState('general')
+  const openModal = (t) => { setModalType(t); setInquiryOpen(true) }
   const [sellerProfile, setSellerProfile] = useState(null)
   const photos = getPhotos(item)
 
@@ -219,7 +220,7 @@ export default function Detail({
         <button
           className="sticky-btn primary"
           style={{gridColumn:'span 2'}}
-          onClick={() => setInquiryOpen(true)}
+          onClick={() => openModal('general')}
         >
           문의하기
         </button>
@@ -231,24 +232,21 @@ export default function Detail({
         </button>
         <button
           className="sticky-btn orange"
-          onClick={async () => {
-            try {
-              await startPayment({
-                productKey: 'reservation',
-                listingId: item.id,
-                customerName: user?.user_metadata?.name || user?.user_metadata?.nickname,
-              })
-            } catch (e) {
-              showToast(e.message || '결제를 시작할 수 없습니다')
-            }
-          }}
+          onClick={() => openModal('visit')}
         >
           방문예약
         </button>
       </div>
 
       {inquiryOpen && (
-        <InquiryModal item={item} user={user} onClose={() => setInquiryOpen(false)} showToast={showToast} />
+        <InquiryModal
+          item={item}
+          user={user}
+          onClose={() => setInquiryOpen(false)}
+          showToast={showToast}
+          initialType={modalType}
+          title={modalType === 'visit' ? '방문 예약 요청' : '매물 문의'}
+        />
       )}
     </>
   )

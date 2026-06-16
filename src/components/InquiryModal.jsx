@@ -7,10 +7,10 @@ const INQUIRY_TYPES = [
   { value: 'delivery', label: '운송/인도 문의' },
 ]
 
-export default function InquiryModal({ item, user, onClose, showToast }) {
+export default function InquiryModal({ item, user, onClose, showToast, initialType = 'general', title = '매물 문의' }) {
   const [name, setName] = useState(user?.user_metadata?.name || user?.user_metadata?.nickname || '')
   const [phone, setPhone] = useState('')
-  const [type, setType] = useState('general')
+  const [type, setType] = useState(initialType)
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -64,7 +64,7 @@ export default function InquiryModal({ item, user, onClose, showToast }) {
       <div className="auth-modal">
         <button className="auth-close" onClick={onClose}>✕</button>
 
-        <h3 className="inquiry-title">매물 문의</h3>
+        <h3 className="inquiry-title">{title}</h3>
         <p className="inquiry-listing">{item.title} · {Number(item.price).toLocaleString()}만원</p>
 
         <form onSubmit={handleSubmit} className="auth-form">
@@ -89,7 +89,9 @@ export default function InquiryModal({ item, user, onClose, showToast }) {
             ))}
           </select>
           <textarea
-            placeholder="문의 내용을 입력해 주세요 (계류지 확인, 시운전 가능 여부 등)"
+            placeholder={type === 'visit'
+              ? '희망 방문 날짜·시간대와 시운전 희망 여부를 적어 주세요 (예: 이번 주말 오후, 시운전 희망)'
+              : '문의 내용을 입력해 주세요 (계류지 확인, 시운전 가능 여부 등)'}
             value={message}
             onChange={e => setMessage(e.target.value)}
             rows={4}
@@ -98,7 +100,7 @@ export default function InquiryModal({ item, user, onClose, showToast }) {
           />
           {error && <p className="auth-error">{error}</p>}
           <button type="submit" className="auth-submit" disabled={loading || !name.trim() || !message.trim()}>
-            {loading ? '접수 중...' : '문의 보내기'}
+            {loading ? '접수 중...' : type === 'visit' ? '방문 예약 요청' : '문의 보내기'}
           </button>
         </form>
 
