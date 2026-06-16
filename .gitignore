@@ -6,3 +6,4 @@ dist/
 제트스키/
 
 .vercel
+dev-dist/
