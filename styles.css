@@ -568,7 +568,8 @@ a { color: inherit; text-decoration: none; }
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 50%, rgba(11,29,46,.28) 100%);
+  /* 상단도 어둡게 — 밝은 사진 위 배지 가독성 (Card .thumb과 동일 처리) */
+  background: linear-gradient(180deg, rgba(0,0,0,.28) 0%, transparent 36%, rgba(11,29,46,.28) 100%);
 }
 .sc-body { padding: 10px 12px 13px; }
 .star-card b {
