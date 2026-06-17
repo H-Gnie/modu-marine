@@ -199,7 +199,7 @@ a { color: inherit; text-decoration: none; }
   padding: 0 18px;
   background: white;
   color: var(--ink);
-  font-size: 14px;
+  font-size: 16px; /* 16px: iOS 자동 확대 방지 */
   font-weight: 500;
   box-shadow: 0 12px 32px rgba(0,0,0,.22);
 }
@@ -234,9 +234,9 @@ a { color: inherit; text-decoration: none; }
 }
 .home-icons button {
   height: 62px;
-  border: 1px solid rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.18);
   border-radius: 13px;
-  background: rgba(255,255,255,.13);
+  background: rgba(11,29,46,.38); /* 밝은 히어로 위에서도 글씨가 보이도록 어둡게 */
   backdrop-filter: blur(12px);
   color: white;
   display: flex;
@@ -246,11 +246,13 @@ a { color: inherit; text-decoration: none; }
   gap: 4px;
   padding: 0 4px;
 }
+.home-icons button svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
 .home-icons button span {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
   letter-spacing: -.01em;
   white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,.5);
 }
 
 /* ── Service Strip ───────────────────────────── */
@@ -540,6 +542,7 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  align-items: start; /* 카드가 늘어나지 않게 — 사진/본문 높이 균일 */
 }
 .star-card {
   border-radius: var(--r-md);
@@ -590,6 +593,7 @@ a { color: inherit; text-decoration: none; }
   font-weight: 860;
   line-height: 1.3;
   margin-bottom: 5px;
+  min-height: 2.6em; /* 제목 2줄 높이 확보 — 카드 높이 정렬 */
 }
 .star-card span {
   display: block;
@@ -1317,6 +1321,13 @@ a { color: inherit; text-decoration: none; }
   border-radius: var(--r-md);
   font-size: 14px;
   font-weight: 700;
+}
+.garage-empty { text-align: center; padding: 10px 4px 4px; }
+.garage-empty p { margin: 0 0 14px; color: var(--muted); font-size: 13.5px; font-weight: 600; line-height: 1.6; }
+.garage-empty-btn {
+  border: 0; cursor: pointer;
+  background: var(--navy); color: #fff; font-weight: 800; font-size: 14px;
+  padding: 11px 20px; border-radius: 999px;
 }
 .toast {
   position: fixed;
@@ -2398,7 +2409,7 @@ details[open] .notice-summary::after { content: '︿'; }
   border: 1.5px solid var(--line);
   border-radius: 22px;
   padding: 0 16px;
-  font-size: 14px;
+  font-size: 16px; /* 16px: iOS 자동 확대 방지 */
   color: var(--ink);
   background: var(--soft);
   outline: none;
@@ -3010,7 +3021,7 @@ details[open] .notice-summary::after { content: '︿'; }
   .cmp-col { flex: 0 0 110px; }
   .pgslot-hint { font-size: 9px; }
   .quick-prompt { max-width: 100%; font-size: 11.5px; }
-  .chatbot-input { font-size: 13px; padding: 0 13px; }
+  .chatbot-input { font-size: 16px; padding: 0 13px; }
   .marina-hero { padding: 16px; min-height: 165px; }
   .marina-hero h1 { font-size: 21px; }
   .marina-hero-stat { width: 72px; height: 72px; }
@@ -3085,7 +3096,7 @@ details[open] .notice-summary::after { content: '︿'; }
 .auth-form textarea {
   width: 100%; padding: 12px 14px;
   border: 1.5px solid #e5e7eb; border-radius: 10px;
-  font-size: 14px; outline: none; box-sizing: border-box;
+  font-size: 16px; outline: none; box-sizing: border-box; /* 16px: iOS 포커스 시 자동 확대 방지 */
   font-family: inherit; background: #fff; color: inherit;
 }
 .auth-form input:focus,

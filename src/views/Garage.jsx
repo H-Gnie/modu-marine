@@ -4,23 +4,35 @@ import Card from '../components/Card.jsx'
 
 export default function Garage({
   wished, compared, recent, sellRequests,
-  toggleWish, toggleCompare, viewDetail, listings
+  toggleWish, toggleCompare, viewDetail, listings, setTab
 }) {
   // 실매물(DB)은 listings prop에서, 더미는 byId에서 조회
   const resolve = id => listings?.find(x => x.id === Number(id)) || byId(id)
   const wishedItems = [...wished].map(resolve).filter(Boolean)
   const recentItems = recent.map(resolve).filter(Boolean)
 
+  const latest = sellRequests[0]
+  const latestName = latest
+    ? ([latest.brand, latest.model].filter(Boolean).join(' ') || latest.type || '등록 마린')
+    : ''
+
   return (
     <>
       <div className="panel">
         <h1 className="detail-title" style={{marginTop:0}}>내마린고</h1>
-        <div className="info-grid">
-          <div className="info"><span>보유 장비</span><strong>Sea-Doo Spark</strong></div>
-          <div className="info"><span>AI 예상 시세</span><strong>1,420만원</strong></div>
-          <div className="info"><span>보험 만료</span><strong>2026-09-30</strong></div>
-          <div className="info"><span>검사 알림</span><strong>120일 남음</strong></div>
-        </div>
+        {sellRequests.length > 0 ? (
+          <div className="info-grid">
+            <div className="info"><span>등록 매물</span><strong>{sellRequests.length}대</strong></div>
+            <div className="info"><span>대표 마린</span><strong>{latestName}</strong></div>
+            <div className="info"><span>등록가</span><strong>{latest.price ? won(Number(latest.price)) : '—'}</strong></div>
+            <div className="info"><span>최근 등록</span><strong>{latest.created || '—'}</strong></div>
+          </div>
+        ) : (
+          <div className="garage-empty">
+            <p>아직 등록한 마린이 없어요.<br/>내 보트·제트스키를 등록하면 여기서 관리할 수 있어요.</p>
+            <button className="garage-empty-btn" onClick={() => setTab && setTab('sell')}>내마린팔기로 등록하기</button>
+          </div>
+        )}
       </div>
 
       <section className="section">

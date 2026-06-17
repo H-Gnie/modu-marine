@@ -5,7 +5,13 @@ export default function TopBar({ tab, compared, onBack, onHome, onCompare, onWis
 
   return (
     <header className="topbar">
-      <button className="icon-btn" onClick={onBack} title="뒤로가기" aria-label="뒤로가기">
+      <button
+        className="icon-btn"
+        onClick={onBack}
+        title="뒤로가기"
+        aria-label="뒤로가기"
+        style={{ visibility: tab === 'home' ? 'hidden' : 'visible' }}
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M15 18l-6-6 6-6"/>
         </svg>
