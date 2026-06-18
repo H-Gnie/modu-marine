@@ -437,7 +437,13 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: .02em;
   text-shadow: 0 1px 2px rgba(0,0,0,.5); /* 밝은 사진/주황 배경 위 흰 글씨 가독성 */
 }
-.badge.orange { background: #e8480c; } /* 불투명·진한 주황 — 흰 글씨 대비 확보 */
+.badge.cert { background: var(--blue); } /* 모두인증 — 밝은 파랑 + 흰 글씨 */
+.badge.delivery { /* 홈배송 — 흰 배경 + 검정 글씨 */
+  background: #fff;
+  color: #14181f;
+  text-shadow: none;
+  border: 1px solid rgba(0,0,0,.12);
+}
 .play {
   position: absolute;
   right: 7px;

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { MARINAS } from '../data.js'
-import { won } from '../utils.js'
+import { won, badgeClass } from '../utils.js'
 import Card from '../components/Card.jsx'
 
 function badgeHtml(item) {
   return item.badges.slice(0, 3).map(b => (
-    <span key={b} className={`badge ${b === '모두인증' ? 'orange' : ''}`}>{b}</span>
+    <span key={b} className={badgeClass(b)}>{b}</span>
   ))
 }
 
@@ -135,7 +135,6 @@ export default function Home({
                     <div className="badges">{badgeHtml(x)}</div>
                   </div>
                   <div className="sc-body">
-                    <b>{x.badges[0]}</b>
                     <strong>{x.title}</strong>
                     <span>{x.year}년 · {x.hours}시간<br/>{won(x.price)}</span>
                   </div>

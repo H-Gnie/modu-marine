@@ -1,9 +1,9 @@
 import React from 'react'
-import { byId, won, gradeOf } from '../utils.js'
+import { byId, won, gradeOf, badgeClass } from '../utils.js'
 
 function badgeHtml(item) {
   return item.badges.slice(0, 2).map(b => (
-    <span key={b} className={`badge ${b === '모두인증' ? 'orange' : ''}`}>{b}</span>
+    <span key={b} className={badgeClass(b)}>{b}</span>
   ))
 }
 
