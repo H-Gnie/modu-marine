@@ -46,6 +46,7 @@ export default function InquiryModal({ item, user, onClose, showToast, initialTy
           buyerPhone: phone.trim(),
           inquiryType: type,
           message: message.trim(),
+          sellerId: item.sellerId || null,
         }),
       }).catch(() => {})
 
