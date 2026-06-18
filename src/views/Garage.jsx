@@ -1,11 +1,23 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { byId, won } from '../utils.js'
+import { supabase } from '../lib/supabase.js'
 import Card from '../components/Card.jsx'
+import DealerApplyModal from '../components/DealerApplyModal.jsx'
 
 export default function Garage({
   wished, compared, recent, sellRequests,
-  toggleWish, toggleCompare, viewDetail, listings, setTab
+  toggleWish, toggleCompare, viewDetail, listings, setTab, user, openAuth, showToast
 }) {
+  const [role, setRole] = useState(null)
+  const [dealerOpen, setDealerOpen] = useState(false)
+
+  useEffect(() => {
+    if (!user) { setRole(null); return }
+    let cancelled = false
+    supabase.from('profiles').select('role').eq('id', user.id).single()
+      .then(({ data }) => { if (!cancelled) setRole(data?.role || 'user') })
+    return () => { cancelled = true }
+  }, [user])
   // 실매물(DB)은 listings prop에서, 더미는 byId에서 조회
   const resolve = id => listings?.find(x => x.id === Number(id)) || byId(id)
   const wishedItems = [...wished].map(resolve).filter(Boolean)
@@ -34,6 +46,22 @@ export default function Garage({
           </div>
         )}
       </div>
+
+      {/* 딜러 전환 — 사업자는 국세청 자동 인증으로 딜러 전환 */}
+      {role === 'dealer' ? (
+        <div className="dealer-status-card">✓ 딜러 인증 완료 — 전문 매물로 등록됩니다</div>
+      ) : (
+        <button
+          className="dealer-cta"
+          onClick={() => { if (!user) { openAuth && openAuth() } else { setDealerOpen(true) } }}
+        >
+          <div>
+            <strong>사업자세요? 딜러로 전환하세요</strong>
+            <span>사업자 인증 시 매물에 ‘딜러’ 배지가 표시됩니다</span>
+          </div>
+          <span className="dealer-cta-arrow">›</span>
+        </button>
+      )}
 
       <section className="section">
         <div className="section-head">
@@ -94,6 +122,15 @@ export default function Garage({
           }
         </div>
       </section>
+
+      {dealerOpen && (
+        <DealerApplyModal
+          user={user}
+          onClose={() => setDealerOpen(false)}
+          showToast={showToast}
+          onSuccess={() => setRole('dealer')}
+        />
+      )}
     </>
   )
 }
