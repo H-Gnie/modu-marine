@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { MARINAS } from '../data.js'
-import { won, badgeClass } from '../utils.js'
+import { won, badgeClass, visibleBadges } from '../utils.js'
 import Card from '../components/Card.jsx'
 
 function badgeHtml(item) {
-  return item.badges.slice(0, 3).map(b => (
+  return visibleBadges(item.badges).slice(0, 3).map(b => (
     <span key={b} className={badgeClass(b)}>{b}</span>
   ))
 }

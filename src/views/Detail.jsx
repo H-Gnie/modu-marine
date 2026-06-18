@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { listings } from '../data.js'
-import { won, gradeOf, getPhotos, badgeClass } from '../utils.js'
+import { won, gradeOf, getPhotos, badgeClass, visibleBadges } from '../utils.js'
 import { supabase } from '../lib/supabase.js'
 import Card from '../components/Card.jsx'
 import InquiryModal from '../components/InquiryModal.jsx'
 
 function badgeHtml(item) {
-  return item.badges.slice(0, 3).map(b => (
+  return visibleBadges(item.badges).slice(0, 3).map(b => (
     <span key={b} className={badgeClass(b)}>{b}</span>
   ))
 }
