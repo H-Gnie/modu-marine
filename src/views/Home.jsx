@@ -67,13 +67,6 @@ export default function Home({
             </svg>
             <span>홈배송</span>
           </button>
-          <button onClick={() => setTab('sell')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
-              <line x1="7" y1="7" x2="7.01" y2="7"/>
-            </svg>
-            <span>내마린팔기</span>
-          </button>
           <button onClick={() => setTab('marinas')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 20h16"/>
@@ -92,15 +85,7 @@ export default function Home({
         </div>
       </section>
 
-      {/* ── Strips (mobile only — PC uses PCTopNav cats) ── */}
-      <div className="service-strip mobile-only">
-        <button onClick={() => goServiceSearch('전체매물')}>전체매물</button>
-        <button className="service-strip-highlight" onClick={() => setTab('marinas')}>⚓ 계류장</button>
-        <button onClick={() => goServiceSearch('모두인증')}>인증 매물</button>
-        <button onClick={() => goServiceSearch('홈배송')}>홈배송</button>
-        <button onClick={() => showToast('AI시세 화면은 다음 단계에서 연결합니다')}>AI시세</button>
-      </div>
-
+      {/* ── 선종 필터 스트립 (mobile only — PC는 PCTopNav 카테고리 바 사용) ── */}
       <div className="cat-strip mobile-only">
         <button onClick={() => goServiceSearch('전체매물')}>전체</button>
         <button onClick={() => goTheme('제트스키')}>제트스키</button>
