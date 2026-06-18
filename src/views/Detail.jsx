@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { listings } from '../data.js'
-import { won, gradeOf, getPhotos, badgeClass, visibleBadges } from '../utils.js'
+import { won, gradeOf, getPhotos, badgeClass, visibleBadges, sellerTypeOf } from '../utils.js'
 import { supabase } from '../lib/supabase.js'
 import Card from '../components/Card.jsx'
 import InquiryModal from '../components/InquiryModal.jsx'
@@ -193,6 +193,7 @@ export default function Detail({
             </div>
             <div className="seller-info">
               <div className="seller-name">
+                <span className={`seller-type ${sellerTypeOf(item) === '딜러' ? 'dealer' : 'private'}`}>{sellerTypeOf(item)}</span>
                 {sellerProfile?.nickname || item.seller}
                 {item.sellerId && <span className="seller-verified">✓ 인증 회원</span>}
               </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { won, gradeOf, badgeClass, visibleBadges } from '../utils.js'
+import { won, gradeOf, badgeClass, visibleBadges, sellerTypeOf } from '../utils.js'
 
 function badgeHtml(item) {
   return visibleBadges(item.badges).slice(0, 3).map(b => (
@@ -40,7 +40,10 @@ export default function Card({ item, compact = false, wished, compared, onWish, 
         <div className="specs">{item.length} · {item.engine}</div>
         {mktPart && <div className={`mkt-hint ${hintCls}`}>{mktPart}</div>}
         <div className="card-bottom-row">
-          <div className="one-line">{item.seller}</div>
+          <div className="one-line">
+            <span className={`seller-type ${sellerTypeOf(item) === '딜러' ? 'dealer' : 'private'}`}>{sellerTypeOf(item)}</span>
+            <span className="seller-name-text">{item.seller}</span>
+          </div>
           <button
             className={`card-cmp-btn${isCompared ? ' on' : ''}`}
             onClick={e => { e.stopPropagation(); onCompare(item.id) }}

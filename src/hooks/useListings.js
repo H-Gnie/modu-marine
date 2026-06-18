@@ -43,8 +43,11 @@ function normalize(row) {
     location: row.region || '',
     hours: row.engine_hours || 0,
     category: row.type,
-    seller: row.sell_mode === 'pro' ? '전문 매물' : '개인 직거래',
-    sellerType: row.sell_mode === 'pro' ? '딜러' : '개인',
+    // 판매자 유형은 profiles.role 기준 (딜러 검증·승인으로 부여). 조인 없으면 개인.
+    sellerType: row.profiles?.role === 'dealer' ? '딜러' : '개인',
+    seller: row.profiles?.role === 'dealer'
+      ? (row.profiles?.nickname || '딜러 매물')
+      : (row.profiles?.nickname || '개인 직거래'),
     score: 85,
     market: `AI시세 ${Math.round(row.price * 1.05).toLocaleString()}만원 · 적정`,
     inspection: {
@@ -78,7 +81,7 @@ export function useListings() {
       setLoading(true)
       const { data, error } = await supabase
         .from('listings')
-        .select('*')
+        .select('*, profiles(role, nickname, avatar_url)')
         .eq('status', 'active')
         .order('created_at', { ascending: false })
 

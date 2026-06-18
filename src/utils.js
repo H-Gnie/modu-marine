@@ -12,6 +12,12 @@ export const badgeClass = b =>
 
 // 화면에 표시할 배지 (모두진단 배지는 노출하지 않음 — 필터/로직용으로만 사용)
 export const visibleBadges = (badges = []) => badges.filter(b => b !== '모두진단');
+
+// 판매자 유형: 실매물은 sellerType(profiles.role 기반), 더미는 seller 문자열로 추론
+export const sellerTypeOf = item => {
+  if (item?.sellerType === '딜러' || item?.sellerType === '개인') return item.sellerType;
+  return (item?.seller || '').includes('개인') ? '개인' : '딜러';
+};
 export function getPhotos(item) {
   if (item.photos) {
     const urls = Object.values(item.photos).filter(Boolean);
