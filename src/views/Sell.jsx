@@ -285,7 +285,7 @@ function Step6({ d, sellMode, onPrev, onSubmit }) {
       </div>
       <label className="consent-row">
         <input type="checkbox" checked={consented} onChange={e => setConsented(e.target.checked)} />
-        <span>모두 진단/인증의 범위와 한계 안내를 확인했으며, 등록 정보가 사실임에 동의합니다.</span>
+        <span>모두 인증의 범위와 한계 안내를 확인했으며, 등록 정보가 사실임에 동의합니다.</span>
       </label>
       <div className="cta-row" style={{marginTop:'12px'}}>
         <button className="wide-btn" style={{background:'var(--soft)',color:'var(--navy)',fontWeight:900}} onClick={onPrev}>이전</button>

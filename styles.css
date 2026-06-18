@@ -228,8 +228,8 @@ a { color: inherit; text-decoration: none; }
 }
 .home-icons {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
   margin-top: 11px;
 }
 .home-icons button {
@@ -248,9 +248,9 @@ a { color: inherit; text-decoration: none; }
 }
 .home-icons button svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,.45)); }
 .home-icons button span {
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 800;
-  letter-spacing: -.01em;
+  letter-spacing: -.02em;
   white-space: nowrap;
   text-shadow: 0 1px 3px rgba(0,0,0,.5);
 }
@@ -2946,7 +2946,7 @@ details[open] .notice-summary::after { content: '︿'; }
 
   /* Service icons: horizontal row on PC */
   .home-icons {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     max-width: 560px;
     margin-top: 28px;
   }

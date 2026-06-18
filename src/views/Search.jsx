@@ -30,7 +30,7 @@ function filteredListings(listings, filters) {
 const categories = ['전체', '제트스키', '모터보트', '낚시보트', '요트', 'RIB']
 const regions = ['전체', '서울', '경기', '부산', '인천', '강원', '충남', '전남', '경남', '제주']
 const sorts = ['추천순', '최신순', '낮은 가격순', '높은 가격순', '운항시간순']
-const services = ['전체매물', '모두진단', '모두인증', '홈배송', '영상']
+const services = ['전체매물', '모두인증', '홈배송', '영상']
 const priceopts = [3000, 5000, 8000, 15000, 25000]
 
 export default function Search({

@@ -51,12 +51,6 @@ export default function Home({
           </div>
         </div>
         <div className="home-icons">
-          <button onClick={() => goServiceSearch('모두진단')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
-            </svg>
-            <span>모두진단</span>
-          </button>
           <button onClick={() => goServiceSearch('모두인증')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -102,7 +96,6 @@ export default function Home({
       <div className="service-strip mobile-only">
         <button onClick={() => goServiceSearch('전체매물')}>전체매물</button>
         <button className="service-strip-highlight" onClick={() => setTab('marinas')}>⚓ 계류장</button>
-        <button onClick={() => goServiceSearch('모두진단')}>진단 매물</button>
         <button onClick={() => goServiceSearch('모두인증')}>인증 매물</button>
         <button onClick={() => goServiceSearch('홈배송')}>홈배송</button>
         <button onClick={() => showToast('AI시세 화면은 다음 단계에서 연결합니다')}>AI시세</button>

@@ -99,8 +99,8 @@ export default function Detail({
 
         <section className="section">
           <div className="section-head">
-            <h2>모두진단 리포트</h2>
-            <button className="badge-info-btn" onClick={() => showToast('모두 진단은 점검일 현재 확인 가능한 범위의 거래 참고용 리포트입니다. 법정 선박검사를 대체하지 않습니다.')}>ⓘ 기준 안내</button>
+            <h2>선박 상태 리포트</h2>
+            <button className="badge-info-btn" onClick={() => showToast('본 리포트는 점검일 현재 확인 가능한 범위의 거래 참고용입니다. 법정 선박검사를 대체하지 않습니다.')}>ⓘ 기준 안내</button>
           </div>
           <div className="report-lockwrap">
             <div className={`report${user ? '' : ' locked'}`}>
@@ -117,12 +117,12 @@ export default function Detail({
             {!user && (
               <div className="report-lock-cta">
                 <div className="lock-icon">🔒</div>
-                <p>선체·엔진·전장·추진계 <strong>상세 진단 등급</strong>은<br/>회원에게만 공개됩니다</p>
+                <p>선체·엔진·전장·추진계 <strong>상세 상태 등급</strong>은<br/>회원에게만 공개됩니다</p>
                 <button className="lock-btn" onClick={openAuth}>회원가입하고 전체 리포트 보기</button>
               </div>
             )}
           </div>
-          <p className="diagnosis-notice">모두 진단은 점검일 현재 확인 가능한 범위에서 작성된 거래 참고용 리포트입니다. 비분해 육안 점검·작동 확인 방식이며, 수중부·내부 부품·잠재 하자·점검 이후 발생한 상태 변화까지 보증하지 않습니다. 법정 선박검사, 선급검사, 제조사 보증을 대체하지 않습니다.</p>
+          <p className="diagnosis-notice">본 리포트는 점검일 현재 확인 가능한 범위에서 작성된 거래 참고용입니다. 비분해 육안 점검·작동 확인 방식이며, 수중부·내부 부품·잠재 하자·점검 이후 발생한 상태 변화까지 보증하지 않습니다. 법정 선박검사, 선급검사, 제조사 보증을 대체하지 않습니다.</p>
         </section>
 
         {item.badges.includes('모두인증') && (

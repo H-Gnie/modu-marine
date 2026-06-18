@@ -8,7 +8,6 @@ const CATS = [
   { label: '요트',     key: '요트' },
   { label: 'RIB',      key: 'RIB' },
   { label: '모두인증', key: 'cert' },
-  { label: '모두진단', key: 'diag' },
   { label: '⚓ 계류장', key: 'marina' },
 ]
 
@@ -26,7 +25,6 @@ export default function PCTopNav({
   function handleCat(key) {
     if (key === 'all')    { updateFilters({ category: '전체', service: '전체매물' }); setTab('search') }
     else if (key === 'cert')   goServiceSearch('모두인증')
-    else if (key === 'diag')   goServiceSearch('모두진단')
     else if (key === 'marina') setTab('marinas')
     else goTheme(key)
   }
