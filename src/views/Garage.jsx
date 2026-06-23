@@ -6,7 +6,7 @@ import DealerApplyModal from '../components/DealerApplyModal.jsx'
 
 export default function Garage({
   wished, compared, recent, sellRequests,
-  toggleWish, toggleCompare, viewDetail, listings, setTab, user, openAuth, showToast
+  toggleWish, toggleCompare, viewDetail, listings, setTab, user, openAuth, showToast, removeSellRequest
 }) {
   const [role, setRole] = useState(null)
   const [dealerOpen, setDealerOpen] = useState(false)
@@ -82,7 +82,19 @@ export default function Garage({
                       {r.type || ''}{r.price ? ' · ' + won(Number(r.price)) : ''}{r.region ? ' · ' + r.region : ''}
                     </div>
                   </div>
-                  <span className="sr-status">{r.status}</span>
+                  <div className="sr-right">
+                    <span className="sr-status">{r.status}</span>
+                    <button
+                      className="sr-remove"
+                      onClick={() => {
+                        if (window.confirm('이 매물을 내릴까요? 목록에서 삭제됩니다.')) {
+                          removeSellRequest && removeSellRequest(r.id)
+                        }
+                      }}
+                    >
+                      내리기
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

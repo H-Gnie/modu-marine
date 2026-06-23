@@ -420,6 +420,22 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [tab])
 
+  // 등록한 매물 내리기: Supabase listings 삭제(RLS상 본인만) + 로컬 목록/카탈로그 갱신
+  const removeSellRequest = useCallback(async (id) => {
+    try {
+      if (user && id != null) {
+        const { error } = await supabase.from('listings').delete().eq('id', id)
+        if (error) throw error
+      }
+      setSellRequests(prev => prev.filter(r => r.id !== id))
+      refreshListings()
+      showToast('매물을 내렸습니다')
+    } catch (err) {
+      console.error('매물 내리기 오류:', err)
+      showToast('매물 내리기 중 오류가 발생했습니다')
+    }
+  }, [user, refreshListings, showToast])
+
   const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare', 'marinas'].includes(tab)
   const isDetail = tab === 'detail'
   const screenClass = 'screen' + (isPadded ? ' padded' : '') + (isDetail ? ' detail-pad' : '')
@@ -430,7 +446,7 @@ export default function App() {
     listings: allListings,
     setTab, viewDetail, toggleWish, toggleCompare, clearCompare,
     updateFilters, goServiceSearch, goBudget, goTheme,
-    setSellStep, setSellMode, setSellData, submitSell,
+    setSellStep, setSellMode, setSellData, submitSell, removeSellRequest,
     showToast,
     user, openAuth, handleLogout,
   }
