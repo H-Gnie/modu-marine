@@ -4,6 +4,7 @@ import { won, gradeOf, getPhotos, badgeClass, visibleBadges, sellerTypeOf } from
 import { supabase } from '../lib/supabase.js'
 import Card from '../components/Card.jsx'
 import InquiryModal from '../components/InquiryModal.jsx'
+import ImageZoomViewer from '../components/ImageZoomViewer.jsx'
 
 function badgeHtml(item) {
   return visibleBadges(item.badges).slice(0, 3).map(b => (
@@ -17,6 +18,7 @@ export default function Detail({
   const item = listing || listings[0]
   const [imgIdx, setImgIdx] = useState(0)
   const [inquiryOpen, setInquiryOpen] = useState(false)
+  const [viewerOpen, setViewerOpen] = useState(false)
   const [modalType, setModalType] = useState('general')
   const openModal = (t) => { setModalType(t); setInquiryOpen(true) }
   const [sellerProfile, setSellerProfile] = useState(null)
@@ -43,14 +45,18 @@ export default function Detail({
   return (
     <>
       <div className="detail-gallery">
-        <div className="detail-main-img" style={{backgroundImage:`url('${photos[imgIdx]}')`}}>
+        <div
+          className="detail-main-img"
+          style={{backgroundImage:`url('${photos[imgIdx]}')`, cursor:'zoom-in'}}
+          onClick={() => setViewerOpen(true)}
+        >
           <div className="badges" style={{left:'14px',top:'14px'}}>{badgeHtml(item)}</div>
           {item.video && (
-            <button className="play big" onClick={() => showToast('영상 플레이어는 준비 중입니다')}>▶ 영상 보기</button>
+            <button className="play big" onClick={(e) => { e.stopPropagation(); showToast('영상 플레이어는 준비 중입니다') }}>▶ 영상 보기</button>
           )}
           <button
             className={`detail-wish${isWished ? ' wished' : ''}`}
-            onClick={() => toggleWish(item.id)}
+            onClick={(e) => { e.stopPropagation(); toggleWish(item.id) }}
           >
             {isWished ? '♥' : '♡'}
           </button>
@@ -248,6 +254,10 @@ export default function Detail({
           initialType={modalType}
           title={modalType === 'visit' ? '방문 예약 요청' : '매물 문의'}
         />
+      )}
+
+      {viewerOpen && (
+        <ImageZoomViewer src={photos[imgIdx]} onClose={() => setViewerOpen(false)} />
       )}
     </>
   )

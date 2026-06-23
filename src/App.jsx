@@ -119,10 +119,9 @@ export default function App() {
     () => localStorage.getItem(CHAT_FAB_HIDDEN_KEY) !== '1'
   )
 
-  // 페이지 로드(새로고침 포함)마다 1.5초 뒤 챗봇 자동 슬라이드업. FAB을 숨긴 경우는 제외.
-  // (같은 화면에서 닫으면 재오픈 안 됨 — 이 effect는 마운트 시 1회만 실행)
+  // 접속 시 한 번만 자동 슬라이드업. 사용자가 닫으면 같은 세션에서는 다시 열지 않는다.
   useEffect(() => {
-    if (!fabVisible) return
+    if (!fabVisible || sessionStorage.getItem(CHAT_AUTO_DISMISSED_KEY) === '1') return
     const t = setTimeout(() => setChatOpen(true), 1500)
     return () => clearTimeout(t)
   }, [fabVisible])
