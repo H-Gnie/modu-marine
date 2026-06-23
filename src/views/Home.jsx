@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { MARINAS } from '../data.js'
-import { won, badgeClass, visibleBadges } from '../utils.js'
+import { won, badgeClass, visibleBadges, sellerTypeOf } from '../utils.js'
 import Card from '../components/Card.jsx'
 
 function badgeHtml(item) {
@@ -115,6 +115,7 @@ export default function Home({
                   <div className="sc-body">
                     <strong>{x.title}</strong>
                     <span>{x.year}년 · {x.hours}시간<br/>{won(x.price)}</span>
+                    <span className={`seller-type ${sellerTypeOf(x) === '딜러' ? 'dealer' : 'private'}`}>{sellerTypeOf(x)}</span>
                   </div>
                 </button>
               ))}

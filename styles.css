@@ -612,6 +612,7 @@ a { color: inherit; text-decoration: none; }
   font-size: 11px;
   line-height: 1.4;
 }
+.star-card .seller-type { display: inline-flex; margin-top: 7px; }
 
 /* ── Video Horizontal Scroll ─────────────────── */
 .hscroll {
