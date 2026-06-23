@@ -3,6 +3,9 @@ import { PHOTO_SLOTS } from '../data.js'
 import { won } from '../utils.js'
 import { validateSellStep } from '../lib/listingInspection.js'
 
+const Req = () => <span className="req-star">*</span>
+const Opt = () => <span className="opt-tag">선택</span>
+
 const VESSEL_TYPES = ['제트스키', '모터보트', '낚시보트', '요트', 'RIB']
 const REGIONS = ['서울', '경기', '부산', '인천', '강원', '충남', '전남', '경남', '제주']
 const ENGINE_TYPES = ['아웃보드', '인보드', '제트', '디젤', '전기']
@@ -39,28 +42,28 @@ function Step1({ d, onChange, onNext, onPrev }) {
     <div className="sell-card">
       <h2>선박 기본 정보</h2>
       <div className="field">
-        <label>선종</label>
+        <label>선종 <Req/></label>
         <select value={d.type} onChange={e => onChange('type', e.target.value)}>
           {VESSEL_TYPES.map(t => <option key={t}>{t}</option>)}
         </select>
       </div>
       <div className="filter-row" style={{marginTop:'10px'}}>
         <div className="field">
-          <label>제조사</label>
+          <label>제조사 <Req/></label>
           <input value={d.brand} placeholder="예: Yamaha" onChange={e => onChange('brand', e.target.value)} />
         </div>
         <div className="field">
-          <label>모델명</label>
+          <label>모델명 <Req/></label>
           <input value={d.model} placeholder="예: VX Cruiser" onChange={e => onChange('model', e.target.value)} />
         </div>
       </div>
       <div className="filter-row" style={{marginTop:'10px'}}>
         <div className="field">
-          <label>연식</label>
+          <label>연식 <Req/></label>
           <input type="number" value={d.year} placeholder="2021" onChange={e => onChange('year', e.target.value)} />
         </div>
         <div className="field">
-          <label>등록번호 / HIN</label>
+          <label>등록번호 / HIN <Opt/></label>
           <input value={d.hin} placeholder="선택 입력" onChange={e => onChange('hin', e.target.value)} />
         </div>
       </div>
@@ -77,18 +80,18 @@ function Step2({ d, onChange, onNext, onPrev }) {
     <div className="sell-card">
       <h2>가격 및 위치</h2>
       <div className="field">
-        <label>희망 판매 가격 (만원)</label>
+        <label>희망 판매 가격 (만원) <Req/></label>
         <input type="number" value={d.price} placeholder="예: 2500" onChange={e => onChange('price', e.target.value)} />
       </div>
       <div className="filter-row" style={{marginTop:'10px'}}>
         <div className="field">
-          <label>지역</label>
+          <label>지역 <Req/></label>
           <select value={d.region} onChange={e => onChange('region', e.target.value)}>
             {REGIONS.map(r => <option key={r}>{r}</option>)}
           </select>
         </div>
         <div className="field">
-          <label>계류지 / 마리나</label>
+          <label>계류지 / 마리나 <Opt/></label>
           <input value={d.marina} placeholder="예: 전곡항" onChange={e => onChange('marina', e.target.value)} />
         </div>
       </div>
@@ -103,26 +106,26 @@ function Step2({ d, onChange, onNext, onPrev }) {
 function Step3({ d, onChange, onNext, onPrev }) {
   return (
     <div className="sell-card">
-      <h2>제원 정보</h2>
+      <h2>제원 정보 <span className="sell-section-opt">전부 선택 입력</span></h2>
       <div className="filter-row">
         <div className="field">
-          <label>운항시간 (h)</label>
+          <label>운항시간 (h) <Opt/></label>
           <input type="number" value={d.hours} placeholder="68" onChange={e => onChange('hours', e.target.value)} />
         </div>
         <div className="field">
-          <label>선체 길이</label>
+          <label>선체 길이 <Opt/></label>
           <input value={d.length} placeholder="3.5m" onChange={e => onChange('length', e.target.value)} />
         </div>
       </div>
       <div className="filter-row" style={{marginTop:'10px'}}>
         <div className="field">
-          <label>엔진 종류</label>
+          <label>엔진 종류 <Opt/></label>
           <select value={d.engine} onChange={e => onChange('engine', e.target.value)}>
             {ENGINE_TYPES.map(t => <option key={t}>{t}</option>)}
           </select>
         </div>
         <div className="field">
-          <label>마력 (HP)</label>
+          <label>마력 (HP) <Opt/></label>
           <input type="number" value={d.hp} placeholder="150" onChange={e => onChange('hp', e.target.value)} />
         </div>
       </div>
@@ -185,10 +188,10 @@ function Step5({ d, onChange, onChangePhoto, onRemovePhoto, onNext, onPrev }) {
         })}
       </div>
       <div className="field" style={{marginTop:'16px'}}>
-        <label>상태 설명</label>
+        <label>상태 설명 <Opt/></label>
         <textarea
           rows="4"
-          placeholder="정비 이력, 보관 방식, 포함 품목, 특이사항 등"
+          placeholder="정비 이력, 보관 방식, 포함 품목, 특이사항 등 (연락처·외부 메신저는 입력 불가)"
           value={d.desc}
           onChange={e => onChange('desc', e.target.value)}
         />
