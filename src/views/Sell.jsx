@@ -6,9 +6,6 @@ import { validateSellStep } from '../lib/listingInspection.js'
 const VESSEL_TYPES = ['제트스키', '모터보트', '낚시보트', '요트', 'RIB']
 const REGIONS = ['서울', '경기', '부산', '인천', '강원', '충남', '전남', '경남', '제주']
 const ENGINE_TYPES = ['아웃보드', '인보드', '제트', '디젤', '전기']
-const REG_STATUSES = ['정상', '말소 예정', '미등록']
-const INSP_STATUSES = ['유효', '만료', '해당 없음']
-const INS_STATUSES = ['가입', '만료', '미가입']
 
 function Step0({ sellMode, setSellMode, onNext }) {
   return (
@@ -137,36 +134,6 @@ function Step3({ d, onChange, onNext, onPrev }) {
   )
 }
 
-function Step4({ d, onChange, onNext, onPrev }) {
-  return (
-    <div className="sell-card">
-      <h2>서류 및 안전 상태</h2>
-      <div className="field">
-        <label>선박 등록증</label>
-        <select value={d.regStatus} onChange={e => onChange('regStatus', e.target.value)}>
-          {REG_STATUSES.map(s => <option key={s}>{s}</option>)}
-        </select>
-      </div>
-      <div className="field" style={{marginTop:'10px'}}>
-        <label>선박 검사 (선박법)</label>
-        <select value={d.inspStatus} onChange={e => onChange('inspStatus', e.target.value)}>
-          {INSP_STATUSES.map(s => <option key={s}>{s}</option>)}
-        </select>
-      </div>
-      <div className="field" style={{marginTop:'10px'}}>
-        <label>보험 상태</label>
-        <select value={d.insStatus} onChange={e => onChange('insStatus', e.target.value)}>
-          {INS_STATUSES.map(s => <option key={s}>{s}</option>)}
-        </select>
-      </div>
-      <div className="cta-row" style={{marginTop:'16px'}}>
-        <button className="wide-btn" style={{background:'var(--soft)',color:'var(--navy)',fontWeight:900}} onClick={onPrev}>이전</button>
-        <button className="primary" style={{borderRadius:'var(--r-md)',fontWeight:900}} onClick={onNext}>다음</button>
-      </div>
-    </div>
-  )
-}
-
 function Step5({ d, onChange, onChangePhoto, onRemovePhoto, onNext, onPrev }) {
   const uploaded = Object.values(d.photos).filter(Boolean).length
   return (
@@ -273,7 +240,7 @@ function Step6({ d, sellMode, onPrev, onSubmit }) {
           {[
             ['선종', d.type], ['지역', d.region || '-'],
             ['운항', d.hours ? d.hours + 'h' : '-'], ['엔진', d.engine],
-            ['등록증', d.regStatus], ['보험', d.insStatus]
+            ['선체 길이', d.length || '-'], ['마력', d.hp ? d.hp + 'HP' : '-']
           ].map(([k, v]) => (
             <div key={k} className="info"><span>{k}</span><strong>{v}</strong></div>
           ))}
@@ -345,14 +312,14 @@ export default function Sell({
     const err = validateSellStep(s, local)
     if (err) { showToast && showToast(err); return }
     setSellData(local)
-    setSellStep(st => Math.min(6, st + 1))
+    setSellStep(st => Math.min(5, st + 1))
   }
   function onPrev() {
     setSellData(local)
     setSellStep(s => Math.max(0, s - 1))
   }
 
-  const steps = Array.from({ length: 7 }, (_, i) => (
+  const steps = Array.from({ length: 6 }, (_, i) => (
     <div key={i} className={`step${i <= s ? ' active' : ''}`} />
   ))
 
@@ -361,7 +328,6 @@ export default function Sell({
     <Step1 key={1} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
     <Step2 key={2} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
     <Step3 key={3} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
-    <Step4 key={4} d={local} onChange={onChange} onNext={onNext} onPrev={onPrev} />,
     <Step5 key={5} d={local} onChange={onChange} onChangePhoto={onChangePhoto} onRemovePhoto={onRemovePhoto} onNext={onNext} onPrev={onPrev} />,
     <Step6 key={6} d={local} sellMode={sellMode} onPrev={onPrev} onSubmit={() => submitSell(local)} />,
   ]
@@ -370,7 +336,7 @@ export default function Sell({
     <section>
       <h1 className="detail-title" style={{marginBottom:'4px'}}>내마린팔기</h1>
       <div className="sell-stepper">{steps}</div>
-      <div className="sell-step-label">단계 {s + 1} / 7</div>
+      <div className="sell-step-label">단계 {s + 1} / 6</div>
       {stepComponents[s]}
     </section>
   )

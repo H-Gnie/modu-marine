@@ -45,8 +45,8 @@ export function validateSellStep(step, d = {}) {
     if (d.hours !== '' && d.hours != null && Number(d.hours) < 0) return '운항시간을 올바르게 입력해 주세요.'
     if (d.hp !== '' && d.hp != null && Number(d.hp) < 0) return '마력을 올바르게 입력해 주세요.'
   }
-  // 5) 사진 + 설명
-  if (step === 5) {
+  // 4) 사진 + 설명 (서류 단계 제거로 5→4 이동)
+  if (step === 4) {
     const photos = d.photos || {}
     const filled = REQUIRED_PHOTO_KEYS.filter(k => photos[k]).length
     if (filled < REQUIRED_PHOTO_KEYS.length) {
