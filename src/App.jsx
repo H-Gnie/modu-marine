@@ -5,6 +5,7 @@ import { byId, won, gradeOf, getPhotos } from './utils.js'
 import { useIsMobile } from './hooks/useIsMobile.js'
 import { useListings } from './hooks/useListings.js'
 import { supabase } from './lib/supabase.js'
+import { inspectListing } from './lib/listingInspection.js'
 
 import TopBar from './components/TopBar.jsx'
 import BottomNav from './components/BottomNav.jsx'
@@ -348,6 +349,10 @@ export default function App() {
 
   const submitSell = useCallback(async (finalData) => {
     if (!user) { showToast('로그인 후 매물을 등록할 수 있습니다'); openAuth(); return }
+
+    // 자동 검수: 필수항목·가격·연락처/금칙어 점검. 실패 시 등록 차단.
+    const inspection = inspectListing(finalData)
+    if (!inspection.ok) { showToast(inspection.errors[0]); return }
 
     showToast('매물 등록 중...')
 
