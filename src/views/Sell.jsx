@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { PHOTO_SLOTS } from '../data.js'
 import { won } from '../utils.js'
+import { validateSellStep } from '../lib/listingInspection.js'
 
 const VESSEL_TYPES = ['제트스키', '모터보트', '낚시보트', '요트', 'RIB']
 const REGIONS = ['서울', '경기', '부산', '인천', '강원', '충남', '전남', '경남', '제주']
@@ -306,7 +307,7 @@ export default function Sell({
   sellStep, setSellStep,
   sellMode, setSellMode,
   sellData, setSellData,
-  submitSell
+  submitSell, showToast
 }) {
   const s = sellStep
   // 로컬 상태로 관리해 타이핑 시 App 리렌더 방지
@@ -341,8 +342,10 @@ export default function Sell({
   }
 
   function onNext() {
+    const err = validateSellStep(s, local)
+    if (err) { showToast && showToast(err); return }
     setSellData(local)
-    setSellStep(s => Math.min(6, s + 1))
+    setSellStep(st => Math.min(6, st + 1))
   }
   function onPrev() {
     setSellData(local)
