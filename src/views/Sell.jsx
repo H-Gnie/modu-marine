@@ -106,11 +106,11 @@ function Step2({ d, onChange, onNext, onPrev }) {
 function Step3({ d, onChange, onNext, onPrev }) {
   return (
     <div className="sell-card">
-      <h2>제원 정보 <span className="sell-section-opt">전부 선택 입력</span></h2>
+      <h2>제원 정보</h2>
       <div className="filter-row">
         <div className="field">
-          <label>운항시간 (h) <Opt/></label>
-          <input type="number" value={d.hours} placeholder="68" onChange={e => onChange('hours', e.target.value)} />
+          <label>운항시간 (h) <Req/></label>
+          <input type="number" value={d.hours} placeholder="68 (신품은 0)" onChange={e => onChange('hours', e.target.value)} />
         </div>
         <div className="field">
           <label>선체 길이 <Opt/></label>
