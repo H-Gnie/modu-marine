@@ -113,8 +113,8 @@ function Step3({ d, onChange, onNext, onPrev }) {
           <input type="number" value={d.hours} placeholder="68 (신품은 0)" onChange={e => onChange('hours', e.target.value)} />
         </div>
         <div className="field">
-          <label>선체 길이 <Opt/></label>
-          <input value={d.length} placeholder="3.5m" onChange={e => onChange('length', e.target.value)} />
+          <label>선체 길이 <Req/></label>
+          <input value={d.length} placeholder="예: 3.5m" onChange={e => onChange('length', e.target.value)} />
         </div>
       </div>
       <div className="filter-row" style={{marginTop:'10px'}}>

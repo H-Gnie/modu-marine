@@ -40,11 +40,13 @@ export function validateSellStep(step, d = {}) {
     if (p > MAX_PRICE_MANWON) return '가격이 비정상적으로 큽니다. 만원 단위로 입력했는지 확인해 주세요.'
     if (!d.region) return '지역을 선택해 주세요.'
   }
-  // 3) 제원 — 운항시간(엔진 시간)은 필수, 나머지는 선택
+  // 3) 제원 — 운항시간·선체 길이는 필수, 나머지는 선택
   if (step === 3) {
     if (d.hours === '' || d.hours == null) return '운항시간(엔진 시간)을 입력해 주세요.'
     const h = Number(d.hours)
     if (!Number.isFinite(h) || h < 0) return '운항시간을 올바르게 입력해 주세요.'
+    const len = parseFloat(String(d.length || '').replace(/[^0-9.]/g, ''))
+    if (!d.length || !Number.isFinite(len) || len <= 0) return '선체 길이를 입력해 주세요. (예: 3.5m)'
     if (d.hp !== '' && d.hp != null && Number(d.hp) < 0) return '마력을 올바르게 입력해 주세요.'
   }
   // 4) 사진 + 설명 (서류 단계 제거로 5→4 이동)
@@ -71,6 +73,10 @@ export function inspectListing(d = {}) {
   if (!d.region) errors.push('지역(계류지)을 입력해 주세요.')
   if (d.hours === '' || d.hours == null || !Number.isFinite(Number(d.hours)) || Number(d.hours) < 0) {
     errors.push('운항시간(엔진 시간)을 입력해 주세요.')
+  }
+  const len = parseFloat(String(d.length || '').replace(/[^0-9.]/g, ''))
+  if (!d.length || !Number.isFinite(len) || len <= 0) {
+    errors.push('선체 길이를 입력해 주세요. (예: 3.5m)')
   }
   const photoCount = Object.values(d.photoFiles || {}).filter(Boolean).length
   if (photoCount < 1) errors.push('대표 사진을 최소 1장 등록해 주세요.')
