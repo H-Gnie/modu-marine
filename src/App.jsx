@@ -98,6 +98,12 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop)
   }, [])
 
+  // 새로고침 시 브라우저 스크롤 복원 끄고 홈 상단부터 시작
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'
+    window.scrollTo(0, 0)
+  }, [])
+
   // Supabase Auth 세션 감지
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -113,9 +119,10 @@ export default function App() {
     () => localStorage.getItem(CHAT_FAB_HIDDEN_KEY) !== '1'
   )
 
-  // 접속 시 한 번만 자동 슬라이드업. 사용자가 닫으면 같은 세션에서는 다시 열지 않는다.
+  // 페이지 로드(새로고침 포함)마다 1.5초 뒤 챗봇 자동 슬라이드업. FAB을 숨긴 경우는 제외.
+  // (같은 화면에서 닫으면 재오픈 안 됨 — 이 effect는 마운트 시 1회만 실행)
   useEffect(() => {
-    if (!fabVisible || sessionStorage.getItem(CHAT_AUTO_DISMISSED_KEY) === '1') return
+    if (!fabVisible) return
     const t = setTimeout(() => setChatOpen(true), 1500)
     return () => clearTimeout(t)
   }, [fabVisible])

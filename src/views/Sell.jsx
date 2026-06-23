@@ -6,6 +6,9 @@ import { validateSellStep } from '../lib/listingInspection.js'
 const Req = () => <span className="req-star">*</span>
 const Opt = () => <span className="opt-tag">선택</span>
 
+const CURRENT_YEAR = new Date().getFullYear()
+const YEARS = Array.from({ length: CURRENT_YEAR + 1 - 1980 + 1 }, (_, i) => CURRENT_YEAR + 1 - i)
+
 const VESSEL_TYPES = ['제트스키', '모터보트', '낚시보트', '요트', 'RIB']
 const REGIONS = ['서울', '경기', '부산', '인천', '강원', '충남', '전남', '경남', '제주']
 const ENGINE_TYPES = ['아웃보드', '인보드', '제트', '디젤', '전기']
@@ -60,7 +63,10 @@ function Step1({ d, onChange, onNext, onPrev }) {
       <div className="filter-row" style={{marginTop:'10px'}}>
         <div className="field">
           <label>연식 <Req/></label>
-          <input type="number" value={d.year} placeholder="2021" onChange={e => onChange('year', e.target.value)} />
+          <select value={d.year} onChange={e => onChange('year', e.target.value)}>
+            <option value="">연식 선택</option>
+            {YEARS.map(y => <option key={y} value={y}>{y}년</option>)}
+          </select>
         </div>
         <div className="field">
           <label>등록번호 / HIN <Opt/></label>
