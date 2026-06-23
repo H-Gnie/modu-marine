@@ -1,8 +1,25 @@
 import React from 'react'
 
-export default function More({ setTab, goServiceSearch, showToast, onRestoreChat, fabVisible }) {
+export default function More({ setTab, goServiceSearch, showToast, onRestoreChat, fabVisible, user, openAuth, handleLogout }) {
   return (
     <>
+      <div className="panel more-account">
+        {user ? (
+          <div className="more-account-row">
+            <div className="more-account-info">
+              <div className="more-account-avatar">{(user.user_metadata?.name || user.user_metadata?.nickname || user.email || 'U')[0]}</div>
+              <div>
+                <div className="more-account-name">{user.user_metadata?.name || user.user_metadata?.nickname || user.email?.split('@')[0]}</div>
+                <div className="more-account-sub">{user.email}</div>
+              </div>
+            </div>
+            <button className="more-logout-btn" onClick={handleLogout}>로그아웃</button>
+          </div>
+        ) : (
+          <button className="more-login-btn" onClick={openAuth}>로그인 / 회원가입</button>
+        )}
+      </div>
+
       <div className="panel">
         <h1 className="detail-title" style={{marginTop:0}}>전체서비스</h1>
         <div className="service-menu">

@@ -517,6 +517,8 @@ export default function App() {
         onHome={() => setTab('home')}
         onCompare={() => setTab('compare')}
         onWish={() => setTab('garage')}
+        user={user}
+        onLogin={openAuth}
       />
       <main id="app" className={screenClass}>
         {mainContent}
