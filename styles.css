@@ -2983,6 +2983,15 @@ details[open] .notice-summary::after { content: '︿'; }
   .desktop-main.screen {
     min-height: calc(100vh - 105px);
   }
+  /* 상세 페이지도 가운데 정렬해 이미지가 양옆으로 늘어지지 않게 */
+  .desktop-main.detail-pad {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 24px 24px 130px !important;
+    box-sizing: border-box;
+  }
+  .desktop-main.detail-pad .detail-gallery { border-radius: var(--r-lg); overflow: hidden; }
+  .desktop-main.detail-pad .detail-main-img { height: 460px; }
 
   /* mobile-only: hide strips on PC (PCTopNav has them) */
   .mobile-only { display: none !important; }
