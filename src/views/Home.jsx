@@ -103,7 +103,7 @@ export default function Home({
 
           <section className="section">
             <div className="section-head">
-              <h2>모두스타픽</h2>
+              <h2>모두마린픽</h2>
               <small onClick={() => goServiceSearch('모두인증')} style={{cursor:'pointer'}}>전체보기</small>
             </div>
             <div className="star-grid">

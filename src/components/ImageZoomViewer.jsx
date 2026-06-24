@@ -6,6 +6,7 @@ import React, { useState, useRef } from 'react'
 export default function ImageZoomViewer({ src, onClose }) {
   const [t, setT] = useState({ scale: 1, x: 0, y: 0 })
   const r = useRef({ startDist: 0, startScale: 1, lastX: 0, lastY: 0, panning: false, lastTap: 0 })
+  const m = useRef({ down: false, lastX: 0, lastY: 0 })
   const imgRef = useRef(null)
 
   const dist = (touches) =>
@@ -59,8 +60,32 @@ export default function ImageZoomViewer({ src, onClose }) {
     setT(prev => (prev.scale > 1 ? { scale: 1, x: 0, y: 0 } : clamp(2.5, 0, 0)))
   }
 
+  // 데스크탑: 마우스 휠 확대, 드래그 이동
+  function onWheel(e) {
+    e.preventDefault()
+    setT(prev => clamp(Math.min(5, Math.max(1, prev.scale - e.deltaY * 0.0015)), prev.x, prev.y))
+  }
+  function onMouseDown(e) {
+    if (t.scale > 1) { m.current = { down: true, lastX: e.clientX, lastY: e.clientY } }
+  }
+  function onMouseMove(e) {
+    if (!m.current.down) return
+    const dx = e.clientX - m.current.lastX
+    const dy = e.clientY - m.current.lastY
+    m.current.lastX = e.clientX
+    m.current.lastY = e.clientY
+    setT(prev => clamp(prev.scale, prev.x + dx, prev.y + dy))
+  }
+  function onMouseUp() { m.current.down = false }
+
   return (
-    <div className="imgzoom-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div
+      className="imgzoom-overlay"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+    >
       <button className="imgzoom-close" onClick={onClose} aria-label="닫기">✕</button>
       <img
         ref={imgRef}
@@ -68,12 +93,14 @@ export default function ImageZoomViewer({ src, onClose }) {
         src={src}
         alt=""
         draggable={false}
-        style={{ transform: `translate(${t.x}px, ${t.y}px) scale(${t.scale})` }}
+        style={{ transform: `translate(${t.x}px, ${t.y}px) scale(${t.scale})`, cursor: t.scale > 1 ? 'grab' : 'zoom-in' }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onDoubleClick={toggleZoom}
+        onWheel={onWheel}
+        onMouseDown={onMouseDown}
       />
-      {t.scale === 1 && <div className="imgzoom-hint">두 손가락으로 확대 · 더블탭</div>}
+      {t.scale === 1 && <div className="imgzoom-hint">휠·핀치로 확대 · 더블클릭</div>}
     </div>
   )
 }
