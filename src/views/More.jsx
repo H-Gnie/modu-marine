@@ -28,6 +28,7 @@ export default function More({ setTab, goServiceSearch, showToast, onRestoreChat
           <button onClick={() => goServiceSearch('홈배송')}>홈배송</button>
           <button onClick={() => showToast('AI시세 화면은 다음 단계에서 연결합니다')}>AI시세</button>
           <button onClick={() => setTab('marinas')}>계류장 찾기</button>
+          <button onClick={() => setTab('license')}>조종면허 가이드</button>
           <button onClick={() => setTab('sell')}>내마린팔기</button>
           <button onClick={() => setTab('garage')}>내마린고</button>
           <button onClick={() => showToast('마린론 상담 화면은 준비 중입니다')}>마린론</button>

@@ -2,6 +2,12 @@ import React, { useState, useCallback } from 'react'
 import { won } from '../utils.js'
 import Card from '../components/Card.jsx'
 
+// 면허별 운항 가능 선종
+export const LICENSE_CATS = {
+  general: ['제트스키', '모터보트', '낚시보트', 'RIB'], // 일반조종면허
+  yacht: ['요트'],                                      // 요트조종면허
+}
+
 function filteredListings(listings, filters) {
   // AI 챗봇이 추천한 매물 ID가 있으면 해당 매물만 표시
   if (filters.chatIds && filters.chatIds.length > 0) {
@@ -16,7 +22,8 @@ function filteredListings(listings, filters) {
     const matchCertified = !f.certified || item.badges.includes('모두인증') || item.badges.includes('모두진단')
     const matchDelivery = !f.delivery || item.badges.includes('홈배송')
     const matchService = f.service === '전체매물' || item.badges.includes(f.service) || item.category === f.service
-    return matchQ && matchCategory && matchPrice && matchRegion && matchCertified && matchDelivery && matchService
+    const matchLicense = !f.license || (LICENSE_CATS[f.license] || []).includes(item.category)
+    return matchQ && matchCategory && matchPrice && matchRegion && matchCertified && matchDelivery && matchService && matchLicense
   })
   const s = filters.sort
   if (s === '최신순') rows.sort((a, b) => b.created.localeCompare(a.created))

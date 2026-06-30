@@ -24,6 +24,7 @@ import Garage from './views/Garage.jsx'
 import More from './views/More.jsx'
 import Dealer from './views/Dealer.jsx'
 import Marinas from './views/Marinas.jsx'
+import License from './views/License.jsx'
 
 const CHAT_AUTO_DISMISSED_KEY = 'chat_auto_dismissed'
 const CHAT_FAB_HIDDEN_KEY = 'chat_fab_hidden'
@@ -51,7 +52,7 @@ export default function App() {
   const [filters, setFilters] = useState({
     category: '전체', maxPrice: '', region: '전체',
     certified: false, delivery: false, sort: '추천순',
-    q: '', service: '전체매물', chatIds: []
+    q: '', service: '전체매물', chatIds: [], license: ''
   })
   const [wished, setWished] = useState(() => loadSet('modu_wished'))
   const [compared, setCompared] = useState(() => loadSet('modu_compared'))
@@ -79,7 +80,7 @@ export default function App() {
   // 상세에서 뒤로가기 시 돌아갈 화면 결정
   const backTargetFor = (curTab) => {
     if (curTab === 'detail') return originTabRef.current
-    if (curTab === 'dealer') return 'more'
+    if (curTab === 'dealer' || curTab === 'license') return 'more'
     return 'home'
   }
 
@@ -333,21 +334,28 @@ export default function App() {
   }, [])
 
   const goServiceSearch = useCallback((service) => {
-    setFilters(prev => ({ ...prev, service, q: '' }))
+    setFilters(prev => ({ ...prev, service, q: '', license: '' }))
     setTabState('search')
     setListing(null)
     window.scrollTo(0, 0)
   }, [])
 
   const goBudget = useCallback((maxPrice) => {
-    setFilters(prev => ({ ...prev, maxPrice, category: '전체' }))
+    setFilters(prev => ({ ...prev, maxPrice, category: '전체', license: '' }))
     setTabState('search')
     setListing(null)
     window.scrollTo(0, 0)
   }, [])
 
   const goTheme = useCallback((category) => {
-    setFilters(prev => ({ ...prev, category }))
+    setFilters(prev => ({ ...prev, category, license: '' }))
+    setTabState('search')
+    setListing(null)
+    window.scrollTo(0, 0)
+  }, [])
+
+  const goLicense = useCallback((license) => {
+    setFilters(prev => ({ ...prev, license, category: '전체', service: '전체매물', q: '', chatIds: [] }))
     setTabState('search')
     setListing(null)
     window.scrollTo(0, 0)
@@ -447,7 +455,7 @@ export default function App() {
     }
   }, [user, refreshListings, showToast])
 
-  const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare', 'marinas'].includes(tab)
+  const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare', 'marinas', 'license'].includes(tab)
   const isDetail = tab === 'detail'
   const screenClass = 'screen' + (isPadded ? ' padded' : '') + (isDetail ? ' detail-pad' : '')
 
@@ -456,7 +464,7 @@ export default function App() {
     sellStep, sellMode, sellData, sellRequests,
     listings: allListings,
     setTab, viewDetail, toggleWish, toggleCompare, clearCompare,
-    updateFilters, goServiceSearch, goBudget, goTheme,
+    updateFilters, goServiceSearch, goBudget, goTheme, goLicense,
     setSellStep, setSellMode, setSellData, submitSell, removeSellRequest,
     showToast,
     user, openAuth, handleLogout,
@@ -472,6 +480,7 @@ export default function App() {
       {tab === 'garage'  && <Garage  {...sharedProps} />}
       {tab === 'dealer'  && <Dealer  {...sharedProps} />}
       {tab === 'marinas' && <Marinas {...sharedProps} />}
+      {tab === 'license' && <License {...sharedProps} />}
       {tab === 'more'    && <More    {...sharedProps} onRestoreChat={restoreFab} fabVisible={fabVisible} />}
     </>
   )
