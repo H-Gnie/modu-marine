@@ -1,10 +1,12 @@
 import React from 'react'
-import { won, gradeOf, badgeClass, visibleBadges, sellerTypeOf } from '../utils.js'
+import { won, gradeOf, badgeClass, visibleBadges, sellerTypeOf, isDemo } from '../utils.js'
 
 function badgeHtml(item) {
-  return visibleBadges(item.badges).slice(0, 3).map(b => (
+  const chips = visibleBadges(item.badges).slice(0, 3).map(b => (
     <span key={b} className={badgeClass(b)}>{b}</span>
   ))
+  if (isDemo(item)) chips.unshift(<span key="demo" className="badge demo">데모</span>)
+  return chips
 }
 
 export default function Card({ item, compact = false, wished, compared, onWish, onCompare, onDetail }) {

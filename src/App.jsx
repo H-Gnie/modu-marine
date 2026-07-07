@@ -513,7 +513,7 @@ export default function App() {
     <>
       <CompareBar compared={compared} tab={tab} onGo={() => setTab('compare')} />
       <Toast msg={toast.msg} visible={toast.visible} />
-      <ChatBot visible={chatOpen} onClose={closeChat} onSelectListings={handleChatSelect} />
+      <ChatBot visible={chatOpen} onClose={closeChat} onSelectListings={handleChatSelect} listings={allListings} />
       {chatFab}
       {authOpen && <AuthModal onClose={closeAuth} />}
     </>

@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { listings } from '../data.js';
 
 const WELCOME = '안녕하세요! 원하시는 매물을 말씀해 주세요.\n예) "500만원 이하 제트스키", "부산 근처 낚시보트", "인증된 요트 찾아줘"';
 const MAX_MESSAGE_LENGTH = 200;
@@ -10,7 +9,7 @@ const QUICK_PROMPTS = [
   '홈배송 가능한 매물',
 ];
 
-export default function ChatBot({ onSelectListings, onClose, visible }) {
+export default function ChatBot({ onSelectListings, onClose, visible, listings = [] }) {
   const [messages, setMessages] = useState([
     { role: 'bot', text: WELCOME }
   ]);
@@ -53,7 +52,9 @@ export default function ChatBot({ onSelectListings, onClose, visible }) {
           listings: listings.map(l => ({
             id: l.id, category: l.category, title: l.title,
             price: l.price, location: l.location, hours: l.hours,
-            badges: l.badges, score: l.score,
+            // 데모 매물(판매자 없음)은 AI가 구분하도록 배지에 표기
+            badges: l.sellerId ? l.badges : [...(l.badges || []), '데모'],
+            score: l.score,
           })),
         }),
       });

@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { listings } from '../data.js'
-import { won, gradeOf, getPhotos, badgeClass, visibleBadges, sellerTypeOf } from '../utils.js'
+import { won, gradeOf, getPhotos, badgeClass, visibleBadges, sellerTypeOf, isDemo } from '../utils.js'
 import { supabase } from '../lib/supabase.js'
 import Card from '../components/Card.jsx'
 import InquiryModal from '../components/InquiryModal.jsx'
 import ImageZoomViewer from '../components/ImageZoomViewer.jsx'
 
 function badgeHtml(item) {
-  return visibleBadges(item.badges).slice(0, 3).map(b => (
+  const chips = visibleBadges(item.badges).slice(0, 3).map(b => (
     <span key={b} className={badgeClass(b)}>{b}</span>
   ))
+  if (isDemo(item)) chips.unshift(<span key="demo" className="badge demo">데모</span>)
+  return chips
 }
 
 export default function Detail({
@@ -20,7 +22,14 @@ export default function Detail({
   const [inquiryOpen, setInquiryOpen] = useState(false)
   const [viewerOpen, setViewerOpen] = useState(false)
   const [modalType, setModalType] = useState('general')
-  const openModal = (t) => { setModalType(t); setInquiryOpen(true) }
+  const openModal = (t) => {
+    if (isDemo(item)) {
+      showToast('데모 매물입니다 — 화면 구성용 예시라 실제 문의·거래가 불가합니다')
+      return
+    }
+    setModalType(t)
+    setInquiryOpen(true)
+  }
   const [sellerProfile, setSellerProfile] = useState(null)
   const photos = getPhotos(item)
 

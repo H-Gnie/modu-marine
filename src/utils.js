@@ -13,6 +13,9 @@ export const badgeClass = b =>
 // 화면에 표시할 배지 (모두진단 배지는 노출하지 않음 — 필터/로직용으로만 사용)
 export const visibleBadges = (badges = []) => badges.filter(b => b !== '모두진단');
 
+// 데모(더미) 매물 여부 — 판매자 계정이 없으면 데모. 실거래·문의 불가.
+export const isDemo = item => !item?.sellerId;
+
 // 판매자 유형: 실매물은 sellerType(profiles.role 기반), 더미는 seller 문자열로 추론
 export const sellerTypeOf = item => {
   if (item?.sellerType === '딜러' || item?.sellerType === '개인') return item.sellerType;
