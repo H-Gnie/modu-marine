@@ -1,184 +1,167 @@
-# 모두의 마린 — 다음 작업 핸드오프 (2026-06 기준)
+# 모두의 마린 — 론칭 준비 작업 지시서 (PM 리뷰 기준, 2026-07 작성)
 
-이 문서는 어떤 Claude 모델(Opus/Sonnet/Haiku)이든 이어서 작업할 수 있도록 작성됐다.
-작업 전 반드시 「현재 상태」와 「주의사항」을 먼저 읽을 것.
+이 문서는 어떤 Claude 모델이든 이어서 작업할 수 있도록 작성됐다.
+작업 전 반드시 「주의사항」을 먼저 읽을 것. 티켓은 우선순위 순서대로 정렬돼 있다.
 
 ---
 
 ## 현재 상태 (완료된 것)
 
-- **스택**: React 19 + Vite 8 (SPA), Supabase (DB/Auth/Storage), Vercel (호스팅 + 서버리스 `api/`)
-- **배포**: GitHub `H-Gnie/modu-marine` main 브랜치 push → Vercel 자동 배포 → https://modu-marine.vercel.app
-- **로그인**: 이메일/비밀번호 + 카카오 로그인 모두 동작함 (2026-06-11 확인)
-  - 카카오는 Supabase 기본 OAuth가 아닌 **커스텀 OIDC 플로우** 사용 (아래 주의사항 참조)
-- **DB**: `docs/supabase_schema.sql` 전체가 Supabase에 적용돼 있음
-  - profiles / listings / wishlists / inquiries 테이블 + RLS + Storage 버킷(listing-images)
-- **매물 등록**: 로그인 후 내마린팔기 → Supabase listings 테이블 + Storage 이미지 업로드까지 동작
-- **AI 챗봇**: `api/chat.js` — Groq(llama-3.1-8b-instant) 기반 매물 추천. 동작함
-- **더미 매물 30개** + Supabase 실매물 병합 표시 (`src/hooks/useListings.js`)
+- **스택**: React 19 + Vite 8 SPA, Supabase (DB/Auth/Storage), Vercel (호스팅 + 서버리스 `api/`)
+- **배포**: main push → Vercel 자동 배포 → https://modu-marine.vercel.app
+- **로그인**: 이메일 + 카카오 (커스텀 OIDC — 주의사항 필독). 모바일/데스크탑 로그인 진입 완비
+- **매물**: 등록(6단계, 단계별 자동검수, 필수/선택 표시) · 내리기 · 찜(계정 동기화) · 비교함
+- **문의/예약**: 문의하기·방문예약 → inquiries 저장 + 판매자 이메일 라우팅(Resend, 도메인 미인증 상태)
+- **신뢰**: 개인/딜러 배지(profiles.role), 딜러 셀프 신청 → 국세청 API 자동 승인 (BUSINESS_API_KEY 설정됨)
+- **결제**: 토스 코드 완성(api/confirm-payment.js, lib/payments.js) — 키 미설정으로 휴면
+- **UX**: 핀치줌 잠금 + 사진 전용 확대 뷰어(모바일 핀치/데스크탑 휠), safe-area, 뒤로가기 origin 복원, 조종면허 가이드 + 면허별 필터
+- **더미 매물 30개** (id 900001~900030) + 실매물 병합 표시
 
 ## 주의사항 (이걸 모르면 깨뜨린다)
 
-1. **카카오 로그인 구조** — 절대 `supabase.auth.signInWithOAuth({ provider: 'kakao' })`로 되돌리지 말 것.
-   Supabase GoTrue가 `account_email` scope를 강제 추가하는데, 이 앱은 비즈니스 인증이 없어 KOE205 에러가 난다.
-   현재 플로우: `AuthModal.jsx`에서 kauth.kakao.com으로 직접 리다이렉트 (scope: `openid profile_nickname profile_image`)
-   → `?code=` 복귀 → `App.jsx` useEffect가 `/api/kakao-token` 호출 → `signInWithIdToken`.
-   - client_id는 `AuthModal.jsx`에 하드코딩 (Vercel이 VITE_ 환경변수를 빌드에 주입 안 해서. 공개 키라 무해)
-   - `api/kakao-token.js`의 redirect_uri는 `https://modu-marine.vercel.app` 하드코딩 — 도메인 바뀌면 수정 필요
-
-2. **`App.jsx`의 useEffect 의존성 배열에 `showToast` 같은 useCallback 헬퍼를 넣을 때**,
-   그 effect가 헬퍼 **선언보다 위에** 있으면 TDZ ReferenceError로 앱 전체가 흰 화면이 된다.
-   빌드는 통과하므로 배포 후에야 터진다. 헬퍼를 쓰는 effect는 반드시 헬퍼 선언 아래에 둘 것.
-
-3. **Vercel 서버리스 함수는 `api/` 루트 직속 파일만 인식**한다. `api/auth/foo.js` 같은 서브디렉토리는 404.
-
-4. **배포 후 변화가 없어 보이면**: Vercel Deployments에서 Ready 확인 → 브라우저 Ctrl+Shift+R.
-   그래도 흰 화면이면 F12 → Console 탭의 빨간 에러를 받아볼 것.
-
-5. **환경변수** (Vercel에 설정돼 있음, 로컬은 `.env.local`):
-   - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` — 프론트
-   - `SUPABASE_SERVICE_ROLE_KEY` — 서버 전용 (프론트 노출 금지)
-   - `GEMINI_API_KEY` — 이름과 달리 **Groq API 키**다 (api/chat.js가 사용)
-   - `KAKAO_REST_API_KEY`, `KAKAO_CLIENT_SECRET` — api/kakao-token.js가 사용
-   - 환경변수 추가/변경 후엔 Vercel **Redeploy** 필요 (Build Cache 체크 해제)
-
-6. 커밋 메시지는 영어 `fix:`/`feat:` 컨벤션, push하면 자동 배포되므로 push 전 `npm run build`로 빌드 확인.
+1. **카카오 로그인**: `signInWithOAuth({provider:'kakao'})`로 되돌리기 금지 (KOE205).
+   커스텀 플로우: AuthModal 직접 리다이렉트 → `/api/kakao-token` → `signInWithIdToken`.
+   client_id는 AuthModal에 하드코딩(공개키), redirect_uri는 api/kakao-token.js에 하드코딩.
+2. **App.jsx TDZ**: useCallback 헬퍼 선언보다 위의 useEffect deps에 그 헬퍼 넣으면 흰 화면. 빌드는 통과함.
+3. **Vercel 서버리스는 `api/` 루트 직속만** 인식. 서브디렉토리는 404.
+4. **환경변수**: `Resend_API`(이름 주의 — RESEND_API_KEY 아님, 코드가 둘 다 읽음), `KAKAO_REST_API_KEY`,
+   `KAKAO_CLIENT_SECRET`, `BUSINESS_API_KEY`(국세청, Decoding 키), `GEMINI_API_KEY`(실제론 Groq 키),
+   `SUPABASE_SERVICE_ROLE_KEY`(서버 전용). 변수 변경 후 Redeploy(캐시 해제) 필수.
+5. **더미 매물**: id 900001+ (DUMMY_ID_OFFSET). 실매물 판별은 `sellerId` 유무로.
+6. **Resend 테스트 도메인**: 발신 `onboarding@resend.dev` → 계정 소유자(hja871004@gmail.com)로만 배달됨.
+7. push 전 `npm run build` 필수. 커밋 후 자동 배포됨.
+8. **설계 원칙: 모든 업무 자동화** — 운영자 수동 개입이 필요한 설계 금지. 셀프서비스 + API 검증 우선.
 
 ## 로컬 개발
 
 ```bash
 cd "d:/1. Work w AI/modu-marine"
-npm install        # 최초 1회
-npm run dev        # http://localhost:5173 (api/는 로컬에서 안 뜸 — Vercel 전용)
-npm run build      # push 전 필수 확인
+npm run dev      # http://localhost:5173 (api/는 Vercel 전용)
+npm run build    # push 전 필수
 ```
-
-`api/*.js`는 Vercel 함수라 `npm run dev`로는 실행되지 않는다.
-로컬에서 API까지 테스트하려면 `npx vercel dev`를 쓰거나, 프론트만 로컬로 확인하고 API는 배포로 검증.
 
 ---
 
-# 작업 티켓 (우선순위 순)
+# 론칭 PM 리뷰 결과 — 작업 티켓 (우선순위 순)
 
-## TICKET-MM-101: 문의하기 실제 동작 + 이메일 알림
+## ❗ P0 — 출시 블로커 (이거 없이 론칭 불가)
 
-Status: TODO. **최우선.**
+### MM-401: 보안 구멍 — verify-business 요청자 인증
 
-Goal: 매물 상세의 "문의하기" 버튼이 지금은 토스트만 띄운다 (`src/views/Detail.jsx` 177행 근처).
-실제로 inquiries 테이블에 저장하고 판매자에게 이메일을 보낸다.
+Status: TODO. **가장 시급 (악용 가능한 실제 취약점).**
 
-Files: `src/views/Detail.jsx`, 신규 `src/components/InquiryModal.jsx`, 신규 `api/send-inquiry.js`, `styles.css`
+문제: `api/verify-business.js`가 body의 `userId`를 그대로 믿고 service role로 profiles를 수정한다.
+공개된 사업자 정보(번호+대표자명+개업일은 준공개 정보)로 **아무나 임의 userId에 딜러 role을 부여**할 수 있다.
 
 방법:
+1. 클라이언트(DealerApplyModal)에서 `supabase.auth.getSession()`의 access_token을 `Authorization: Bearer`로 전송.
+2. 서버에서 `GET {SUPABASE_URL}/auth/v1/user` (헤더: apikey=anon key, Authorization=받은 토큰)로 토큰 검증
+   → 응답의 user.id를 사용. body의 userId는 제거.
+3. 같은 패턴을 `api/send-inquiry.js`(스팸 방지 겸)에는 적용하지 말 것 — 비로그인 문의 허용이 스펙임.
+   대신 send-inquiry에는 간단한 길이/필드 검증이 이미 있음.
 
-1. **InquiryModal 컴포넌트** 생성 — AuthModal.jsx의 모달 구조(auth-overlay/auth-modal 클래스)를 재사용.
-   필드: 이름(로그인 시 자동 채움), 연락처, 문의 유형(일반/방문/운송 = general/visit/delivery), 메시지(필수).
-2. Detail.jsx의 문의하기 버튼 → 모달 오픈. 로그인 안 했어도 문의 가능 (inquiries RLS의 insert는 `with check (true)`).
-3. 제출 시:
-   ```js
-   await supabase.from('inquiries').insert({
-     listing_id: item.id,        // 주의: 더미 매물(id 1~30)은 DB에 없어 FK 위반.
-     buyer_id: user?.id ?? null, // 더미 매물이면 insert 생략하고 이메일만 보내거나,
-     buyer_name, buyer_phone, message, inquiry_type
-   })
-   ```
-   **더미 매물 처리**: `item.seller_id`가 없으면(더미) DB insert를 건너뛰고 mock 성공 처리할 것. FK 에러 방지.
-4. **이메일 알림** — `api/send-inquiry.js` 생성, Resend 사용:
-   - https://resend.com 가입 → API 키 발급 → Vercel 환경변수 `RESEND_API_KEY` 추가 (사용자에게 요청할 것)
-   - 도메인 인증 전에는 `onboarding@resend.dev` 발신, 수신은 Resend 가입 이메일만 가능 — MVP는 이걸로 충분
-   - fetch로 `https://api.resend.com/emails` POST (`Authorization: Bearer`), SDK 설치 불필요
-   - 판매자 이메일은 profiles에 없으므로, MVP는 운영자(사용자 본인 이메일)에게 "새 문의" 알림만 보내는 것으로 시작
-5. 제출 성공 → 토스트 "문의가 접수되었습니다. 판매자가 곧 연락드립니다."
+Acceptance: 토큰 없이 POST하면 401. 정상 로그인 사용자는 본인 계정만 딜러 전환됨.
 
-Acceptance: 배포 후 실매물에 문의 작성 → Supabase Table Editor의 inquiries에 행 생성 + 이메일 수신.
-
-## TICKET-MM-102: 찜 목록 계정 연동
+### MM-402: 실매물 중심 전환 — 챗봇·데모 매물 정리
 
 Status: TODO.
 
-Goal: 찜이 지금 localStorage에만 있어 기기 바뀌면 사라진다. 로그인 사용자는 wishlists 테이블에 동기화.
+문제 2가지:
+1. **AI 챗봇이 더미 매물만 추천** — `ChatBot.jsx`가 `data.js`의 listings(더미 30개)만 API에 보낸다.
+   실제 등록 매물은 추천 대상에서 빠짐. → App에서 `allListings`를 prop으로 내려 사용하도록 수정.
+2. **데모 매물이 실매물처럼 보임** — 더미 30개는 판매자가 없어 문의해도 거래 불가.
+   → 카드·상세에 `데모` 배지 표시(id >= 900000 또는 !sellerId 기준), 문의/방문예약 시
+   "데모 매물입니다. 실제 거래가 불가합니다" 안내 후 차단. 챗봇 시스템 프롬프트에도 데모 표기 전달.
+   (더미를 아예 빼면 매물이 2개뿐이라 앱이 비어 보임 — 론칭 초기엔 데모 배지로 유지가 낫다.)
 
-Files: `src/App.jsx` (toggleWish, 초기 로드), 필요시 신규 `src/hooks/useWishlist.js`
+Acceptance: 실매물 등록 → 챗봇에 조건 말하면 실매물이 추천됨. 데모 매물엔 데모 배지가 보이고 문의가 차단됨.
 
-방법:
+### MM-403: 계정 기본기 — 비밀번호 재설정 · 회원 탈퇴 · 카카오 닉네임
 
-1. 로그인 감지 시(user 변경 useEffect) `supabase.from('wishlists').select('listing_id')`로 서버 찜을 불러와
-   localStorage 찜과 **합집합 병합** 후 setWished. 병합분은 서버에도 upsert.
-2. toggleWish 수정: user 있으면 insert/delete 병행 (낙관적 업데이트 — UI 먼저 바꾸고 실패 시 롤백 또는 토스트).
-   ```js
-   if (adding) supabase.from('wishlists').insert({ user_id: user.id, listing_id: numId })
-   else supabase.from('wishlists').delete().match({ user_id: user.id, listing_id: numId })
-   ```
-3. **더미 매물 주의**: id 1~30은 listings 테이블에 없어 FK 위반 → 더미 id는 localStorage만 사용하고
-   DB 동기화는 건너뛸 것. (실매물 id는 bigserial이라 보통 큰 수지만, id로 구분하지 말고
-   `allListings.find(x => x.id === numId)?.seller_id` 존재 여부로 실매물 판별 권장)
-4. 로그아웃해도 localStorage 찜은 유지 (현행 동작 보존).
+Status: TODO. (탈퇴는 개인정보보호법상 필수 기능)
 
-Acceptance: A 브라우저에서 실매물 찜 → B 브라우저(같은 계정 로그인)에서 찜 목록에 보임.
+1. **비밀번호 재설정**: AuthModal에 "비밀번호를 잊으셨나요?" →
+   `supabase.auth.resetPasswordForEmail(email, { redirectTo: origin })` → 메일 링크로 복귀 시
+   `?type=recovery` 감지 → 새 비밀번호 입력 모달 → `supabase.auth.updateUser({ password })`.
+2. **회원 탈퇴**: 더보기 계정 영역에 "회원 탈퇴" → 확인 모달 → 신규 `api/delete-account.js`
+   (요청자 JWT 검증 → service role로 `auth.admin.deleteUser`; profiles/listings는 FK cascade로 정리됨).
+3. **카카오 닉네임 폴백**: 카카오 유저는 user_metadata 구조가 달라 닉네임이 비어 보일 수 있음.
+   표시 로직을 `nickname ?? name ?? full_name ?? email앞부분 ?? '회원'`으로 통일 (PCTopNav, More, Garage, InquiryModal).
 
-## TICKET-MM-103: 챗봇 입력창 가시성 최종 검증
+### MM-404: 판매자 루프 완성 — 내 매물 DB 연동 + 받은 문의함 + 매물 수정 + 판매완료
 
-Status: 코드 수정은 끝났으나 **사용자 확인이 안 됨**. 검증만 남음.
+Status: TODO. **가장 큰 P0 티켓.** 판매자가 이메일 없이도 앱 안에서 거래를 완결할 수 있어야 한다.
 
-확인 방법: 배포 사이트에서 ① 데스크탑 풀스크린 ② 브라우저 창을 600px 높이로 줄였을 때
-③ 모바일(개발자도구 디바이스 모드 iPhone SE) — 세 경우 모두 챗봇 열었을 때
-추천 질문 칩 + 입력창 + 전송 버튼이 보여야 한다.
-구조: `.chatbot-wrap`은 `bottom`+`height` 기반(절대 `top` 추가 금지), `.chatbot-footer`가 `flex-shrink: 0`,
-`.chatbot-messages`가 `flex: 1; min-height: 0`. 문제가 보이면 이 세 가지부터 점검.
+1. **내 매물 DB 연동**: 내마린고 "판매 진행"이 localStorage(sellRequests) 기반이라 기기 바뀌면 사라짐.
+   → 로그인 시 `listings?seller_id=eq.user.id` 조회로 대체(상태 무관 전체). localStorage는 폴백/캐시로만.
+2. **받은 문의함**: 내마린고에 "받은 문의" 섹션 — `inquiries` 중 내 매물에 달린 것 조회
+   (RLS가 이미 판매자 조회 허용). 문의 유형/이름/연락처/메시지/시간 표시, 읽음 처리(status→replied).
+3. **매물 수정**: 판매 진행 항목에 "수정" → Sell 플로우를 수정 모드로 재사용(기존 값 프리필, submit 시 update).
+4. **판매완료**: "내리기(삭제)" 외에 "판매완료" 버튼 → status='sold'. sold는 카탈로그에서 제외(현행 active 필터 유지)하되 내 매물 목록엔 표시.
 
-## TICKET-MM-104: 토스페이먼츠 결제 (모두진단 예약비)
+### MM-405: 법적 필수 — 이용약관 · 개인정보처리방침 + 동의
 
-Status: TODO. MM-101, 102 이후 진행.
+Status: TODO. (개인정보 수집(이메일·전화번호) 서비스는 법적 필수)
 
-Goal: "모두진단 예약" 같은 소액 결제 1건을 끝까지 연결해 결제 인프라를 검증한다.
+1. 신규 `src/views/Terms.jsx` — 이용약관 / 개인정보처리방침 두 문서 (탭 or 앵커).
+   중고거래 플랫폼 표준 템플릿 기반으로 작성하되 "통신판매중개자로서 거래 당사자가 아님" 면책 명시.
+2. 가입 폼에 "약관 및 개인정보처리방침 동의" 체크(필수) + 링크.
+3. 푸터/전체서비스에 약관 링크 추가.
+4. **[사용자 액션]** 실제 운영하려면: 사업자등록 → 통신판매업 신고(간이과세라도) → 약관에 사업자 정보 기재.
+   결제(토스 실키)까지 가면 필수. 코드와 무관하게 병행 진행할 것.
 
-방법:
+### MM-406: [사용자 액션] 도메인 구입 + Resend 인증 → 판매자 실메일 발송 ON
 
-1. https://developers.tosspayments.com — 테스트 키는 가입 즉시 발급 (test_ck_/test_sk_).
-   Vercel 환경변수: `VITE_TOSS_CLIENT_KEY`(공개), `TOSS_SECRET_KEY`(서버 전용).
-   주의: VITE_ 주입 문제가 재발하면 클라이언트 키도 하드코딩 가능 (공개 키임).
-2. 프론트: `@tosspayments/tosspayments-sdk` 설치 → 결제위젯 또는 `requestPayment`로 결제창 호출.
-   successUrl: `${origin}/?payment=success`, failUrl: `${origin}/?payment=fail`
-   (SPA라 라우터가 없으므로 쿼리 파라미터로 처리 — App.jsx의 카카오 콜백 useEffect 패턴 참고)
-3. 서버: 신규 `api/confirm-payment.js` — successUrl로 받은 paymentKey/orderId/amount를
-   `https://api.tosspayments.com/v1/payments/confirm`에 POST해 승인 (시크릿 키는 Basic auth, base64).
-   **amount는 반드시 서버에서 주문 원본과 대조** (금액 변조 방지).
-4. Supabase에 `payments` 테이블 추가 (orderId, user_id, listing_id, amount, status, paymentKey).
-   schema 파일에도 반영할 것 (`docs/supabase_schema.sql`).
-5. 테스트 키 결제는 실제 청구 없음. 카드번호 아무거나(4330-1234-5678-9012 등) 통과.
+Status: TODO. 코드 변경은 발신 주소 한 줄.
 
-Acceptance: 테스트 결제 → 승인 성공 → payments 테이블 기록 → 성공 화면 토스트.
+1. 도메인 구입 (가비아/Cloudflare 등, 예: modumarine.kr — 연 1~2만원).
+2. Resend → Domains → Add Domain → 안내된 SPF/DKIM DNS 레코드를 도메인 업체에 등록 → 인증 완료.
+3. `api/send-inquiry.js`의 from을 `알림 <noreply@구입도메인>`으로 변경.
+4. (선택) Vercel 커스텀 도메인 연결 + `api/kakao-token.js` redirect_uri, 카카오 콘솔 리다이렉트 URI 갱신.
 
-## TICKET-MM-105: 기술 부채 정리
+Acceptance: 판매자(운영자 아닌 계정) 메일로 문의 알림이 실제 배달됨.
 
-Status: TODO. 다른 티켓 사이사이에.
+## ⚠️ P1 — 출시 주간 (품질·신뢰)
 
-1. **번들 503KB → 코드 스플리팅**: `vite.config.js`에 manualChunks로 react/supabase 분리하거나
-   views를 `React.lazy` + Suspense로 전환. 목표: 메인 청크 300KB 이하.
-2. **환경변수 이름 정리**: `GEMINI_API_KEY` → `GROQ_API_KEY`.
-   api/chat.js의 `process.env.GEMINI_API_KEY` 수정 + Vercel 환경변수 추가 + Redeploy까지 한 세트.
-   (Vercel에서 옛 키 지우기 전에 새 키 먼저 추가할 것)
-3. **`.env.local` git 확인**: `.gitignore`에 있는지 확인. 만약 과거에 커밋된 적 있으면 키 전부 로테이션.
-4. **카카오 로그인 시 profiles.nickname**: 카카오 유저는 `raw_user_meta_data` 구조가 이메일 가입과 달라
-   nickname이 비어 보일 수 있음. PCTopNav가 `user.user_metadata?.name || user.email`을 쓰는데
-   카카오 유저는 둘 다 없을 수 있다 → `user_metadata.nickname ?? user_metadata.full_name ?? '회원'` 폴백 추가.
+### MM-407: 이미지 클라이언트 압축
+휴대폰 원본(수 MB)이 그대로 Storage에 올라감 → 업로드 느리고 카드 로딩 무거움.
+업로드 전 canvas 리사이즈(최대 1600px, JPEG q0.8)로 압축. `browser-image-compression` 또는 직접 구현.
 
-## TICKET-MM-106: 매물 상세 강화 (여유 있을 때)
+### MM-408: 죽은 버튼 정리 (PM 판단: 축소/삭제)
+"준비 중입니다" 토스트만 뜨는 진입점은 론칭 신뢰도를 깎는다:
+- **숨김**: 딜러·마리나 센터(Dealer.jsx mock — role='dealer'에게만 노출하거나 제거), 매거진, 마린론, 보험/정비
+- **최소 구현**: 고객센터 → mailto 링크 또는 문의 폼, AI시세 → 상세의 AI시세 박스로 스크롤 안내
+- **영상 보기**: 더미 전용 기능 — 데모 배지와 함께 데모 매물에서만 표시
 
-- 조회수: Detail 진입 시 listings.view_count 증가 (RLS 때문에 RPC 함수 또는 서버리스 경유 필요)
-- 판매자 프로필 보기 (현재 "준비 중" 토스트)
-- 방문 예약 (현재 "준비 중" 토스트) — MM-104 결제와 묶어서 설계 가능
+### MM-409: 운영 가시성 — Sentry + GA4 + OG 메타
+- Sentry(무료 플랜) 프론트 에러 수집 — 흰 화면류 사고를 사용자 제보 전에 감지
+- GA4 또는 Vercel Analytics — 유입/전환 측정
+- `index.html`에 OG 태그(og:title/description/image) — 카톡 공유 시 미리보기
+
+### MM-410: 기술 부채
+- 코드 스플리팅 (번들 503KB → React.lazy 뷰 분리 or manualChunks)
+- `GEMINI_API_KEY` → `GROQ_API_KEY` 개명 (Vercel에 새 키 추가 후 코드 수정, 옛 키 제거)
+- PWA 재활성화 결정: 안정화됐다고 판단되면 vite.config.js의 `selfDestroying: true` 제거
+- `src/views.js` (구버전 죽은 코드 700줄) 삭제
+
+## 🚀 P2 — 출시 후 (성장·수익화)
+
+- **MM-411 상위노출 결제**: listings.featured_until + 토스 결제(featured_7d/30d 상품) + 정렬 우선 + '추천' 배지. 토스 실키는 사업자 필요.
+- **MM-412 카카오 알림톡**: 채널 개설 + 솔라피 연동. 사업자 인증 필요.
+- **MM-413 신고/차단**: 매물·사용자 신고 → reports 테이블 → 임계치 초과 시 자동 숨김(자동화 원칙).
+- **MM-414 검수 고급화**: 등록을 서버 API 경유로 강제(클라 우회 차단) + 사진 AI 검수(보트 사진 여부)·중복 이미지 탐지.
+- **MM-415 앱스토어**: Capacitor 래핑 → 플레이스토어($25)/앱스토어($99/년). PWA 재활성화가 선행.
+- **MM-416 AI시세 실구현**: 등록 매물 축적 후 실거래 데이터 기반 산정으로 교체.
 
 ---
 
-## 작업 순서 요약
+## 실행 순서 요약
 
 ```
-MM-101 문의하기 (Resend 키 발급은 사용자에게 요청)
-  → MM-102 찜 동기화
-  → MM-103 챗봇 검증 (5분)
-  → MM-104 토스 결제
-  → MM-105/106 틈틈이
+MM-401 보안(반나절) → MM-402 챗봇·데모(반나절) → MM-403 계정(1일)
+→ MM-404 판매자 루프(1~2일) → MM-405 약관(1일)
+→ [사용자] MM-406 도메인 + 사업자/통신판매업 신고 병행
+→ P1 일괄 (2~3일) → 론칭 → P2
 ```
 
-각 티켓 완료 시: `npm run build` 통과 확인 → 커밋 → push → Vercel Ready 확인 → 배포 사이트에서 실제 동작 확인 → 사용자에게 보고.
+각 티켓 완료 시: `npm run build` → 커밋 → push → Vercel Ready → 배포 사이트 실동작 확인 → 보고.
