@@ -1,9 +1,29 @@
 // 국세청 사업자등록 진위확인(공공데이터포털) → 통과 시 자동으로 role='dealer' 부여
+// 요청자의 Supabase JWT를 검증해 "본인 계정"만 전환 가능 (body의 userId는 신뢰하지 않음)
+async function getAuthedUserId(req) {
+  const auth = req.headers.authorization || ''
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null
+  if (!token) return null
+  const sUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+  const apiKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
+  try {
+    const r = await fetch(`${sUrl}/auth/v1/user`, {
+      headers: { apikey: apiKey, Authorization: `Bearer ${token}` },
+    })
+    if (!r.ok) return null
+    const u = await r.json()
+    return u?.id || null
+  } catch { return null }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' })
 
-  const { userId, bizNo, ceoName, openDate, bizName } = req.body || {}
-  if (!userId || !bizNo || !ceoName || !openDate) {
+  const userId = await getAuthedUserId(req)
+  if (!userId) return res.status(401).json({ error: '로그인이 필요합니다. 다시 로그인해 주세요.' })
+
+  const { bizNo, ceoName, openDate, bizName } = req.body || {}
+  if (!bizNo || !ceoName || !openDate) {
     return res.status(400).json({ error: '상호·사업자등록번호·대표자명·개업일을 모두 입력해 주세요.' })
   }
 

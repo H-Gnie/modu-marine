@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { supabase } from '../lib/supabase.js'
 
 export default function DealerApplyModal({ user, onClose, showToast, onSuccess }) {
   const [bizName, setBizName] = useState('')
@@ -13,11 +14,17 @@ export default function DealerApplyModal({ user, onClose, showToast, onSuccess }
     setError('')
     setLoading(true)
     try {
+      // 본인 인증: 세션 토큰을 서버로 보내 서버가 요청자를 검증한다
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { setError('로그인이 필요합니다. 다시 로그인해 주세요.'); setLoading(false); return }
+
       const res = await fetch('/api/verify-business', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
-          userId: user.id,
           bizName: bizName.trim(),
           bizNo: bizNo.trim(),
           ceoName: ceoName.trim(),
