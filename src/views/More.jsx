@@ -60,6 +60,7 @@ export default function More({ setTab, goServiceSearch, showToast, onRestoreChat
           <button onClick={() => showToast('마린론 상담 화면은 준비 중입니다')}>마린론</button>
           <button onClick={() => showToast('보험/정비 화면은 준비 중입니다')}>보험/정비</button>
           <button onClick={() => showToast('고객센터 연결 화면은 준비 중입니다')}>고객센터</button>
+          <button onClick={() => setTab('terms')}>약관·정책</button>
         </div>
       </div>
 

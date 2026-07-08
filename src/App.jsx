@@ -26,6 +26,7 @@ import More from './views/More.jsx'
 import Dealer from './views/Dealer.jsx'
 import Marinas from './views/Marinas.jsx'
 import License from './views/License.jsx'
+import Terms from './views/Terms.jsx'
 
 const CHAT_AUTO_DISMISSED_KEY = 'chat_auto_dismissed'
 const CHAT_FAB_HIDDEN_KEY = 'chat_fab_hidden'
@@ -82,7 +83,7 @@ export default function App() {
   // 상세에서 뒤로가기 시 돌아갈 화면 결정
   const backTargetFor = (curTab) => {
     if (curTab === 'detail') return originTabRef.current
-    if (curTab === 'dealer' || curTab === 'license') return 'more'
+    if (curTab === 'dealer' || curTab === 'license' || curTab === 'terms') return 'more'
     return 'home'
   }
 
@@ -458,7 +459,7 @@ export default function App() {
     }
   }, [user, refreshListings, showToast])
 
-  const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare', 'marinas', 'license'].includes(tab)
+  const isPadded = ['search', 'sell', 'garage', 'more', 'dealer', 'compare', 'marinas', 'license', 'terms'].includes(tab)
   const isDetail = tab === 'detail'
   const screenClass = 'screen' + (isPadded ? ' padded' : '') + (isDetail ? ' detail-pad' : '')
 
@@ -484,6 +485,7 @@ export default function App() {
       {tab === 'dealer'  && <Dealer  {...sharedProps} />}
       {tab === 'marinas' && <Marinas {...sharedProps} />}
       {tab === 'license' && <License {...sharedProps} />}
+      {tab === 'terms'   && <Terms   {...sharedProps} />}
       {tab === 'more'    && <More    {...sharedProps} onRestoreChat={restoreFab} fabVisible={fabVisible} />}
     </>
   )

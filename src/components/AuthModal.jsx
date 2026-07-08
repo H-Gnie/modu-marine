@@ -9,6 +9,7 @@ export default function AuthModal({ onClose }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [sent, setSent] = useState(false) // 'signup' | 'reset' | false
+  const [agreed, setAgreed] = useState(false)
 
   function handleKakao() {
     const url = new URL('https://kauth.kakao.com/oauth/authorize')
@@ -26,6 +27,7 @@ export default function AuthModal({ onClose }) {
     setLoading(true)
 
     if (mode === 'signup') {
+      if (!agreed) { setError('이용약관 및 개인정보처리방침에 동의해 주세요.'); setLoading(false); return }
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -109,6 +111,12 @@ export default function AuthModal({ onClose }) {
                   minLength={6}
                   required
                 />
+              )}
+              {mode === 'signup' && (
+                <label className="auth-agree">
+                  <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} />
+                  <span><b>이용약관</b> 및 <b>개인정보처리방침</b>에 동의합니다 (필수)</span>
+                </label>
               )}
               {error && <p className="auth-error">{error}</p>}
               <button type="submit" className="auth-submit" disabled={loading}>
