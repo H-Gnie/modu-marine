@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
+import { displayName } from '../utils.js'
 
 const INQUIRY_TYPES = [
   { value: 'general', label: '일반 문의' },
@@ -8,7 +9,7 @@ const INQUIRY_TYPES = [
 ]
 
 export default function InquiryModal({ item, user, onClose, showToast, initialType = 'general', title = '매물 문의' }) {
-  const [name, setName] = useState(user?.user_metadata?.name || user?.user_metadata?.nickname || '')
+  const [name, setName] = useState(user ? displayName(user) : '')
   const [phone, setPhone] = useState('')
   const [type, setType] = useState(initialType)
   const [message, setMessage] = useState('')

@@ -2,13 +2,13 @@ import React, { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 
 export default function AuthModal({ onClose }) {
-  const [mode, setMode] = useState('login') // login | signup
+  const [mode, setMode] = useState('login') // login | signup | reset
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nickname, setNickname] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [sent, setSent] = useState(false)
+  const [sent, setSent] = useState(false) // 'signup' | 'reset' | false
 
   function handleKakao() {
     const url = new URL('https://kauth.kakao.com/oauth/authorize')
@@ -32,7 +32,13 @@ export default function AuthModal({ onClose }) {
         options: { data: { name: nickname } }
       })
       if (error) { setError(error.message); setLoading(false); return }
-      setSent(true)
+      setSent('signup')
+    } else if (mode === 'reset') {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      })
+      if (error) { setError(error.message); setLoading(false); return }
+      setSent('reset')
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) { setError(error.message); setLoading(false); return }
@@ -54,8 +60,12 @@ export default function AuthModal({ onClose }) {
         {sent ? (
           <div className="auth-sent">
             <div className="auth-sent-icon">✉️</div>
-            <p><strong>{email}</strong>로 인증 메일을 보냈습니다.</p>
-            <p className="auth-sent-sub">메일함을 확인해 링크를 클릭하면 로그인됩니다.</p>
+            <p><strong>{email}</strong>로 {sent === 'reset' ? '재설정 메일' : '인증 메일'}을 보냈습니다.</p>
+            <p className="auth-sent-sub">
+              {sent === 'reset'
+                ? '메일의 링크를 클릭하면 새 비밀번호를 설정할 수 있습니다.'
+                : '메일함을 확인해 링크를 클릭하면 로그인됩니다.'}
+            </p>
           </div>
         ) : (
           <>
@@ -90,19 +100,35 @@ export default function AuthModal({ onClose }) {
                 onChange={e => setEmail(e.target.value)}
                 required
               />
-              <input
-                type="password"
-                placeholder="비밀번호 (6자 이상)"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                minLength={6}
-                required
-              />
+              {mode !== 'reset' && (
+                <input
+                  type="password"
+                  placeholder="비밀번호 (6자 이상)"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  minLength={6}
+                  required
+                />
+              )}
               {error && <p className="auth-error">{error}</p>}
               <button type="submit" className="auth-submit" disabled={loading}>
-                {loading ? '처리 중...' : mode === 'login' ? '로그인' : '가입하기'}
+                {loading ? '처리 중...'
+                  : mode === 'login' ? '로그인'
+                  : mode === 'reset' ? '재설정 메일 보내기'
+                  : '가입하기'}
               </button>
             </form>
+
+            {mode === 'login' && (
+              <button type="button" className="auth-forgot" onClick={() => { setMode('reset'); setError('') }}>
+                비밀번호를 잊으셨나요?
+              </button>
+            )}
+            {mode === 'reset' && (
+              <button type="button" className="auth-forgot" onClick={() => { setMode('login'); setError('') }}>
+                ← 로그인으로 돌아가기
+              </button>
+            )}
           </>
         )}
       </div>

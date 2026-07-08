@@ -15,6 +15,7 @@ import CompareBar from './components/CompareBar.jsx'
 import Toast from './components/Toast.jsx'
 import ChatBot from './components/ChatBot.jsx'
 import AuthModal from './components/AuthModal.jsx'
+import PasswordResetModal from './components/PasswordResetModal.jsx'
 import Home from './views/Home.jsx'
 import Search from './views/Search.jsx'
 import Detail from './views/Detail.jsx'
@@ -70,6 +71,7 @@ export default function App() {
   })
   const [toast, setToast] = useState({ msg: '', visible: false })
   const [chatOpen, setChatOpen] = useState(false)
+  const [recoveryOpen, setRecoveryOpen] = useState(false)
 
   // 현재 화면을 ref로 추적 (popstate 핸들러가 최신 값을 읽도록)
   const tabRef = useRef(tab)
@@ -110,8 +112,9 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
     })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
+      if (event === 'PASSWORD_RECOVERY') setRecoveryOpen(true)
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -516,6 +519,7 @@ export default function App() {
       <ChatBot visible={chatOpen} onClose={closeChat} onSelectListings={handleChatSelect} listings={allListings} />
       {chatFab}
       {authOpen && <AuthModal onClose={closeAuth} />}
+      {recoveryOpen && <PasswordResetModal onClose={() => setRecoveryOpen(false)} showToast={showToast} />}
     </>
   )
 

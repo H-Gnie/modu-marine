@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { displayName } from '../utils.js'
 
 const CATS = [
   { label: '전체매물',  key: 'all' },
@@ -62,7 +63,7 @@ export default function PCTopNav({
           </button>
           {user ? (
             <button className="pc-util-btn" onClick={handleLogout}>
-              {user.user_metadata?.name || user.email?.split('@')[0]} · 로그아웃
+              {displayName(user)} · 로그아웃
             </button>
           ) : (
             <button className="pc-util-btn login-btn" onClick={openAuth}>

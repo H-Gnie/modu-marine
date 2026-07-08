@@ -1,20 +1,46 @@
 import React from 'react'
+import { supabase } from '../lib/supabase.js'
+import { displayName } from '../utils.js'
+
+async function handleDeleteAccount(showToast, handleLogout) {
+  if (!window.confirm('정말 탈퇴하시겠어요? 등록한 매물·찜·문의가 모두 삭제되며 복구할 수 없습니다.')) return
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { showToast('로그인이 필요합니다'); return }
+    const res = await fetch('/api/delete-account', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+    const data = await res.json()
+    if (data.ok) {
+      await supabase.auth.signOut()
+      showToast('탈퇴가 완료되었습니다')
+    } else {
+      showToast(data.error || '탈퇴 처리 중 오류가 발생했습니다')
+    }
+  } catch {
+    showToast('탈퇴 처리 중 오류가 발생했습니다')
+  }
+}
 
 export default function More({ setTab, goServiceSearch, showToast, onRestoreChat, fabVisible, user, openAuth, handleLogout }) {
   return (
     <>
       <div className="panel more-account">
         {user ? (
-          <div className="more-account-row">
-            <div className="more-account-info">
-              <div className="more-account-avatar">{(user.user_metadata?.name || user.user_metadata?.nickname || user.email || 'U')[0]}</div>
-              <div>
-                <div className="more-account-name">{user.user_metadata?.name || user.user_metadata?.nickname || user.email?.split('@')[0]}</div>
-                <div className="more-account-sub">{user.email}</div>
+          <>
+            <div className="more-account-row">
+              <div className="more-account-info">
+                <div className="more-account-avatar">{displayName(user)[0]}</div>
+                <div>
+                  <div className="more-account-name">{displayName(user)}</div>
+                  <div className="more-account-sub">{user.email}</div>
+                </div>
               </div>
+              <button className="more-logout-btn" onClick={handleLogout}>로그아웃</button>
             </div>
-            <button className="more-logout-btn" onClick={handleLogout}>로그아웃</button>
-          </div>
+            <button className="more-delete-btn" onClick={() => handleDeleteAccount(showToast, handleLogout)}>회원 탈퇴</button>
+          </>
         ) : (
           <button className="more-login-btn" onClick={openAuth}>로그인 / 회원가입</button>
         )}
