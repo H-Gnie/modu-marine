@@ -23,7 +23,12 @@ function filteredListings(listings, filters) {
     const matchDelivery = !f.delivery || item.badges.includes('홈배송')
     const matchService = f.service === '전체매물' || item.badges.includes(f.service) || item.category === f.service
     const matchLicense = !f.license || (LICENSE_CATS[f.license] || []).includes(item.category)
-    return matchQ && matchCategory && matchPrice && matchRegion && matchCertified && matchDelivery && matchService && matchLicense
+    const matchBrand = !f.brand || item.brand === f.brand
+    const matchModel = !f.model || item.model === f.model
+    const matchYear = !f.yearMin || (Number(item.year) && Number(item.year) >= Number(f.yearMin))
+    const matchHours = !f.hoursMax || Number(item.hours) <= Number(f.hoursMax)
+    return matchQ && matchCategory && matchPrice && matchRegion && matchCertified && matchDelivery
+      && matchService && matchLicense && matchBrand && matchModel && matchYear && matchHours
   })
   const s = filters.sort
   if (s === '최신순') rows.sort((a, b) => b.created.localeCompare(a.created))
@@ -45,6 +50,12 @@ export default function Search({
   wished, compared, toggleWish, toggleCompare, viewDetail
 }) {
   const rows = filteredListings(listings, filters)
+
+  // 제조사·모델 계단식: 선택된 선종 → 제조사 목록, 선택된 제조사 → 모델 목록 (매물에서 동적 추출)
+  const catRows = filters.category === '전체' ? listings : listings.filter(x => x.category === filters.category)
+  const brands = Array.from(new Set(catRows.map(x => x.brand).filter(Boolean))).sort()
+  const brandRows = filters.brand ? catRows.filter(x => x.brand === filters.brand) : catRows
+  const models = Array.from(new Set(brandRows.map(x => x.model).filter(Boolean))).sort()
 
   return (
     <>
@@ -75,7 +86,7 @@ export default function Search({
             <select
               id="category"
               value={filters.category}
-              onChange={e => updateFilters({ category: e.target.value })}
+              onChange={e => updateFilters({ category: e.target.value, brand: '', model: '' })}
             >
               {categories.map(x => <option key={x}>{x}</option>)}
             </select>
@@ -90,6 +101,34 @@ export default function Search({
               <option value="">전체</option>
               {priceopts.map(x => <option key={x} value={x}>{won(x)} 이하</option>)}
             </select>
+          </div>
+        </div>
+        <div className="filter-row">
+          <div className="field">
+            <label>제조사</label>
+            <select value={filters.brand} onChange={e => updateFilters({ brand: e.target.value, model: '' })}>
+              <option value="">전체 제조사</option>
+              {brands.map(b => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
+          <div className="field">
+            <label>모델</label>
+            <select value={filters.model} onChange={e => updateFilters({ model: e.target.value })} disabled={!filters.brand}>
+              <option value="">{filters.brand ? '전체 모델' : '제조사 먼저 선택'}</option>
+              {models.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="filter-row">
+          <div className="field">
+            <label>연식 (이상)</label>
+            <input type="number" inputMode="numeric" placeholder="예: 2015"
+              value={filters.yearMin} onChange={e => updateFilters({ yearMin: e.target.value })} />
+          </div>
+          <div className="field">
+            <label>운항시간 (이하 h)</label>
+            <input type="number" inputMode="numeric" placeholder="예: 200"
+              value={filters.hoursMax} onChange={e => updateFilters({ hoursMax: e.target.value })} />
           </div>
         </div>
         <div className="filter-row">

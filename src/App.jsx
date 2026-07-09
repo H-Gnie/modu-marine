@@ -54,7 +54,8 @@ export default function App() {
   const [filters, setFilters] = useState({
     category: '전체', maxPrice: '', region: '전체',
     certified: false, delivery: false, sort: '추천순',
-    q: '', service: '전체매물', chatIds: [], license: ''
+    q: '', service: '전체매물', chatIds: [], license: '',
+    brand: '', model: '', yearMin: '', hoursMax: ''
   })
   const [wished, setWished] = useState(() => loadSet('modu_wished'))
   const [compared, setCompared] = useState(() => loadSet('modu_compared'))
@@ -337,29 +338,31 @@ export default function App() {
     setFilters(prev => ({ ...prev, ...updates }))
   }, [])
 
+  const CLR = { brand: '', model: '', yearMin: '', hoursMax: '' } // 네비 시 세부 필터 초기화
+
   const goServiceSearch = useCallback((service) => {
-    setFilters(prev => ({ ...prev, service, q: '', license: '' }))
+    setFilters(prev => ({ ...prev, service, q: '', license: '', ...CLR }))
     setTabState('search')
     setListing(null)
     window.scrollTo(0, 0)
   }, [])
 
   const goBudget = useCallback((maxPrice) => {
-    setFilters(prev => ({ ...prev, maxPrice, category: '전체', license: '' }))
+    setFilters(prev => ({ ...prev, maxPrice, category: '전체', license: '', ...CLR }))
     setTabState('search')
     setListing(null)
     window.scrollTo(0, 0)
   }, [])
 
   const goTheme = useCallback((category) => {
-    setFilters(prev => ({ ...prev, category, license: '' }))
+    setFilters(prev => ({ ...prev, category, license: '', ...CLR }))
     setTabState('search')
     setListing(null)
     window.scrollTo(0, 0)
   }, [])
 
   const goLicense = useCallback((license) => {
-    setFilters(prev => ({ ...prev, license, category: '전체', service: '전체매물', q: '', chatIds: [] }))
+    setFilters(prev => ({ ...prev, license, category: '전체', service: '전체매물', q: '', chatIds: [], ...CLR }))
     setTabState('search')
     setListing(null)
     window.scrollTo(0, 0)
