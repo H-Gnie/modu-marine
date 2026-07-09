@@ -51,7 +51,6 @@ export default function More({ setTab, goServiceSearch, showToast, onRestoreChat
         <div className="service-menu">
           <button onClick={() => goServiceSearch('전체매물')}>내마린사기</button>
           <button onClick={() => goServiceSearch('모두인증')}>모두인증</button>
-          <button onClick={() => goServiceSearch('홈배송')}>홈배송</button>
           <button onClick={() => showToast('AI시세 화면은 다음 단계에서 연결합니다')}>AI시세</button>
           <button onClick={() => setTab('marinas')}>계류장 찾기</button>
           <button onClick={() => setTab('license')}>조종면허 가이드</button>

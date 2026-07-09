@@ -60,15 +60,6 @@ export default function Home({
             </svg>
             <span>모두인증</span>
           </button>
-          <button onClick={() => goServiceSearch('홈배송')}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="1" y="3" width="15" height="13"/>
-              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-              <circle cx="5.5" cy="18.5" r="2.5"/>
-              <circle cx="18.5" cy="18.5" r="2.5"/>
-            </svg>
-            <span>홈배송</span>
-          </button>
           <button onClick={() => setTab('marinas')}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4 20h16"/>
@@ -168,7 +159,7 @@ export default function Home({
             <div className="theme-grid">
               <button onClick={() => goTheme('제트스키')}>입문용<br/>제트스키</button>
               <button onClick={() => goBudget('5000')}>5천만원 이하<br/>낚시보트</button>
-              <button onClick={() => goServiceSearch('홈배송')}>바로 인도<br/>가능 매물</button>
+              <button onClick={() => goTheme('RIB')}>레저용<br/>RIB 보트</button>
               <button onClick={() => goTheme('요트')}>주말 크루징<br/>요트</button>
             </div>
           </section>

@@ -10,8 +10,8 @@ export const badgeClass = b =>
   : b === '홈배송' ? 'badge delivery'
   : 'badge';
 
-// 화면에 표시할 배지 (모두진단 배지는 노출하지 않음 — 필터/로직용으로만 사용)
-export const visibleBadges = (badges = []) => badges.filter(b => b !== '모두진단');
+// 화면에 표시할 배지 (모두진단·홈배송 배지는 노출하지 않음)
+export const visibleBadges = (badges = []) => badges.filter(b => b !== '모두진단' && b !== '홈배송');
 
 // 데모(더미) 매물 여부 — 판매자 계정이 없으면 데모. 실거래·문의 불가.
 export const isDemo = item => !item?.sellerId;

@@ -6,7 +6,7 @@ const QUICK_PROMPTS = [
   '500만원 이하 제트스키',
   '부산 근처 낚시보트',
   '모두인증 요트 추천',
-  '홈배송 가능한 매물',
+  '3천만원 이하 모터보트',
 ];
 
 export default function ChatBot({ onSelectListings, onClose, visible, listings = [] }) {
