@@ -8,6 +8,28 @@ export const LICENSE_CATS = {
   yacht: ['요트'],                                      // 요트조종면허
 }
 
+// 제조사/모델 정규화 키 — 대소문자·공백·하이픈 차이를 하나로 취급 (Sea-Doo=SEADOO=seadoo)
+const normKey = s => (s || '').toLowerCase().replace(/[^a-z0-9가-힣]/g, '')
+// 같은 그룹의 여러 표기 중 대표 라벨 선택 (첫 글자 대문자+혼합 > 첫 글자 대문자 > 첫 항목)
+const pickLabel = variants =>
+  variants.find(v => /^[A-Z]/.test(v) && /[a-z]/.test(v))
+  || variants.find(v => /^[A-Z]/.test(v))
+  || variants[0]
+// rows에서 field를 정규화 그룹핑 → [{ key, label }] (라벨 오름차순)
+function groupByNorm(rows, field) {
+  const map = new Map()
+  for (const r of rows) {
+    const v = r[field]
+    if (!v) continue
+    const k = normKey(v)
+    if (!map.has(k)) map.set(k, [])
+    map.get(k).push(v)
+  }
+  return Array.from(map.entries())
+    .map(([key, variants]) => ({ key, label: pickLabel(variants) }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+}
+
 function filteredListings(listings, filters) {
   // AI 챗봇이 추천한 매물 ID가 있으면 해당 매물만 표시
   if (filters.chatIds && filters.chatIds.length > 0) {
@@ -23,8 +45,8 @@ function filteredListings(listings, filters) {
     const matchDelivery = !f.delivery || item.badges.includes('홈배송')
     const matchService = f.service === '전체매물' || item.badges.includes(f.service) || item.category === f.service
     const matchLicense = !f.license || (LICENSE_CATS[f.license] || []).includes(item.category)
-    const matchBrand = !f.brand || item.brand === f.brand
-    const matchModel = !f.model || item.model === f.model
+    const matchBrand = !f.brand || normKey(item.brand) === f.brand
+    const matchModel = !f.model || normKey(item.model) === f.model
     const matchYear = !f.yearMin || (Number(item.year) && Number(item.year) >= Number(f.yearMin))
     const matchHours = !f.hoursMax || Number(item.hours) <= Number(f.hoursMax)
     return matchQ && matchCategory && matchPrice && matchRegion && matchCertified && matchDelivery
@@ -51,11 +73,11 @@ export default function Search({
 }) {
   const rows = filteredListings(listings, filters)
 
-  // 제조사·모델 계단식: 선택된 선종 → 제조사 목록, 선택된 제조사 → 모델 목록 (매물에서 동적 추출)
+  // 제조사·모델 계단식 (정규화 그룹핑으로 표기 중복 제거)
   const catRows = filters.category === '전체' ? listings : listings.filter(x => x.category === filters.category)
-  const brands = Array.from(new Set(catRows.map(x => x.brand).filter(Boolean))).sort()
-  const brandRows = filters.brand ? catRows.filter(x => x.brand === filters.brand) : catRows
-  const models = Array.from(new Set(brandRows.map(x => x.model).filter(Boolean))).sort()
+  const brands = groupByNorm(catRows, 'brand')
+  const brandRows = filters.brand ? catRows.filter(x => normKey(x.brand) === filters.brand) : catRows
+  const models = groupByNorm(brandRows, 'model')
 
   return (
     <>
@@ -108,14 +130,14 @@ export default function Search({
             <label>제조사</label>
             <select value={filters.brand} onChange={e => updateFilters({ brand: e.target.value, model: '' })}>
               <option value="">전체 제조사</option>
-              {brands.map(b => <option key={b} value={b}>{b}</option>)}
+              {brands.map(b => <option key={b.key} value={b.key}>{b.label}</option>)}
             </select>
           </div>
           <div className="field">
             <label>모델</label>
             <select value={filters.model} onChange={e => updateFilters({ model: e.target.value })} disabled={!filters.brand}>
               <option value="">{filters.brand ? '전체 모델' : '제조사 먼저 선택'}</option>
-              {models.map(m => <option key={m} value={m}>{m}</option>)}
+              {models.map(m => <option key={m.key} value={m.key}>{m.label}</option>)}
             </select>
           </div>
         </div>

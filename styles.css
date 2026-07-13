@@ -224,6 +224,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -.025em;
   text-shadow: 0 2px 10px rgba(0,0,0,.18);
   max-width: 270px;
+  word-break: keep-all; /* 조사(이/가 등)가 홀로 줄바꿈되지 않게 */
 }
 .search-box {
   width: 100%;
