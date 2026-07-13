@@ -70,7 +70,6 @@ export default function Detail({
             {isWished ? '♥' : '♡'}
           </button>
           <div className="detail-img-count">{imgIdx + 1} / {photos.length}</div>
-          <div className={`grade-dot grade-${gradeCls}`} style={{bottom:'14px',left:'14px'}}>{grade}</div>
         </div>
         {photos.length > 1 && (
           <div className="detail-thumb-strip">

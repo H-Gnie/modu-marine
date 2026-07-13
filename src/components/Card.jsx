@@ -33,7 +33,6 @@ export default function Card({ item, compact = false, wished, compared, onWish, 
           {isWished ? '♥' : '♡'}
         </button>
         {item.video && <span className="play">▶</span>}
-        <div className={`grade-dot grade-${gradeCls}`}>{grade}</div>
       </div>
       <div className="card-body">
         <h3 className="card-title">{item.title}</h3>
