@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react'
 import { MARINAS } from '../data.js'
-import { won } from '../utils.js'
 import MarinaInquiryModal from '../components/MarinaInquiryModal.jsx'
 
 const regions = ['전체', '경기', '인천', '부산', '경남', '제주']
@@ -25,7 +24,7 @@ export default function Marinas({ showToast, user }) {
         <div>
           <div className="home-mode">계류장 찾기</div>
           <h1>보트 둘 곳까지<br/>한 번에 확인하세요</h1>
-          <p>월 계류비, 위치, 시설을 모아보고 바로 문의하세요.</p>
+          <p>위치와 시설을 확인하고 바로 문의하세요.</p>
         </div>
         <div className="marina-hero-stat">
           <strong>{MARINAS.length}</strong>
@@ -52,7 +51,7 @@ export default function Marinas({ showToast, user }) {
 
       <div className="section-head" style={{padding:'0 0 4px'}}>
         <h2 style={{fontSize:'16px',fontWeight:950,color:'var(--navy)'}}>계류장 {rows.length}곳</h2>
-        <small style={{color:'var(--muted)'}}>월 예상비 기준</small>
+        <small style={{color:'var(--muted)'}}>지역·시설별</small>
       </div>
 
       <div className="marina-list">
@@ -64,10 +63,6 @@ export default function Marinas({ showToast, user }) {
                 <div>
                   <h2>{m.name}</h2>
                   <p>{m.region} · {m.type}</p>
-                </div>
-                <div className="marina-price">
-                  <strong>{won(m.monthlyFee)}</strong>
-                  <span>/월~</span>
                 </div>
               </div>
               <p className="marina-desc">{m.desc}</p>
@@ -95,7 +90,7 @@ export default function Marinas({ showToast, user }) {
 
       <section className="section" style={{paddingBottom:'22px'}}>
         <div className="notice">
-          계류비 등 정보는 참고용입니다. 실제 계약 전 계류 가능 여부, 선체 길이·흘수, 전기 사용량, 장기 계류 조건, 보험 요건을 계류장에 직접 확인하세요.
+          실제 계약 전 계류 가능 여부, 계류비, 선체 길이·흘수, 전기 사용량, 장기 계류 조건, 보험 요건을 계류장에 직접 확인하세요.
         </div>
       </section>
 
