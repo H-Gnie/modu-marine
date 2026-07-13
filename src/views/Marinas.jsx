@@ -1,23 +1,23 @@
 import React, { useMemo, useState } from 'react'
 import { MARINAS } from '../data.js'
 import { won } from '../utils.js'
+import MarinaInquiryModal from '../components/MarinaInquiryModal.jsx'
 
 const regions = ['전체', '경기', '인천', '부산', '경남', '제주']
 const facilities = ['전체', '전기', '급수', '육상보관', '정비', '요트', '트레일러']
 
-export default function Marinas({ showToast }) {
+export default function Marinas({ showToast, user }) {
   const [region, setRegion] = useState('전체')
   const [facility, setFacility] = useState('전체')
-  const [availableOnly, setAvailableOnly] = useState(false)
+  const [inquiryMarina, setInquiryMarina] = useState(null)
 
   const rows = useMemo(() => {
     return MARINAS.filter(m => {
       const matchRegion = region === '전체' || m.region.includes(region)
       const matchFacility = facility === '전체' || m.tags.includes(facility)
-      const matchAvailable = !availableOnly || m.available > 0
-      return matchRegion && matchFacility && matchAvailable
-    }).sort((a, b) => b.available - a.available)
-  }, [region, facility, availableOnly])
+      return matchRegion && matchFacility
+    })
+  }, [region, facility])
 
   return (
     <>
@@ -25,11 +25,11 @@ export default function Marinas({ showToast }) {
         <div>
           <div className="home-mode">계류장 찾기</div>
           <h1>보트 둘 곳까지<br/>한 번에 확인하세요</h1>
-          <p>월 계류비, 빈자리, 시설, 상담 가능 여부를 모아봤습니다.</p>
+          <p>월 계류비, 위치, 시설을 모아보고 바로 문의하세요.</p>
         </div>
         <div className="marina-hero-stat">
-          <strong>{MARINAS.reduce((sum, m) => sum + m.available, 0)}</strong>
-          <span>상담 가능 자리</span>
+          <strong>{MARINAS.length}</strong>
+          <span>등록 계류장</span>
         </div>
       </div>
 
@@ -48,14 +48,6 @@ export default function Marinas({ showToast }) {
             </select>
           </div>
         </div>
-        <label className="marina-check">
-          <input
-            type="checkbox"
-            checked={availableOnly}
-            onChange={e => setAvailableOnly(e.target.checked)}
-          />
-          <span>상담 가능 자리만 보기</span>
-        </label>
       </div>
 
       <div className="section-head" style={{padding:'0 0 4px'}}>
@@ -66,11 +58,7 @@ export default function Marinas({ showToast }) {
       <div className="marina-list">
         {rows.length ? rows.map(m => (
           <article className="marina-card" key={m.id}>
-            <div className="marina-img" style={{backgroundImage:`url('${m.image}')`}}>
-              <span className={`marina-status ${m.available > 5 ? 'good' : m.available > 0 ? 'warn' : 'full'}`}>
-                {m.available > 0 ? `빈자리 ${m.available}` : '대기'}
-              </span>
-            </div>
+            <div className="marina-img" style={{backgroundImage:`url('${m.image}')`}} />
             <div className="marina-body">
               <div className="marina-title-row">
                 <div>
@@ -95,7 +83,7 @@ export default function Marinas({ showToast }) {
                 {m.services.map(s => <span key={s}>{s}</span>)}
               </div>
               <div className="cta-row marina-actions">
-                <button className="primary" onClick={() => showToast(`${m.name} 상담 요청을 남겼습니다`)}>상담 요청</button>
+                <button className="primary" onClick={() => setInquiryMarina(m)}>문의하기</button>
                 <button onClick={() => showToast(`${m.phone}로 연결 준비 중입니다`)}>전화 문의</button>
               </div>
             </div>
@@ -107,9 +95,18 @@ export default function Marinas({ showToast }) {
 
       <section className="section" style={{paddingBottom:'22px'}}>
         <div className="notice">
-          계류비와 빈자리는 mock 데이터입니다. 실제 계약 전 선체 길이, 흘수, 전기 사용량, 장기 계류 조건, 보험 요건을 계류장에 직접 확인하세요.
+          계류비 등 정보는 참고용입니다. 실제 계약 전 계류 가능 여부, 선체 길이·흘수, 전기 사용량, 장기 계류 조건, 보험 요건을 계류장에 직접 확인하세요.
         </div>
       </section>
+
+      {inquiryMarina && (
+        <MarinaInquiryModal
+          marina={inquiryMarina}
+          user={user}
+          onClose={() => setInquiryMarina(null)}
+          showToast={showToast}
+        />
+      )}
     </>
   )
 }
