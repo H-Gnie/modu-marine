@@ -39,7 +39,6 @@ export default function Card({ item, compact = false, wished, compared, onWish, 
         <div className="price">{won(item.price)}</div>
         <div className="specs">{item.year}년 · {item.hours}h · {item.location}</div>
         <div className="specs">{item.length} · {item.engine}</div>
-        {mktPart && <div className={`mkt-hint ${hintCls}`}>{mktPart}</div>}
         <div className="card-bottom-row">
           <div className="one-line">
             <span className={`seller-type ${sellerTypeOf(item) === '딜러' ? 'dealer' : 'private'}`}>{sellerTypeOf(item)}</span>

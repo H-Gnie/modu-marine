@@ -92,10 +92,6 @@ export default function Detail({
             <div className="price" style={{fontSize:'26px'}}>{won(item.price)}</div>
           </div>
         </div>
-        <div className="market-box">
-          <b>{item.market}</b>
-          <span>실거래/등록가 기반 모두 AI시세</span>
-        </div>
 
         <section className="section">
           <div className="section-head"><h2>기본 제원</h2></div>
